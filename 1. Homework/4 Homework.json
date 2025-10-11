@@ -1,0 +1,244 @@
+{
+  "name": "4 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -928,
+        128
+      ],
+      "id": "27200272-aa2f-4daa-899b-e72c41f14f6d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://google.com",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        -96
+      ],
+      "id": "88efd148-a75c-4c2f-970c-9c961010999e",
+      "name": "HTTP Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.facebook.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        96
+      ],
+      "id": "a2ff8ef2-e01f-42aa-9bdf-ff96712c539d",
+      "name": "HTTP Request1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://xeadada.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        304
+      ],
+      "id": "676eb038-c85d-40bc-a440-c0d55f4db43a",
+      "name": "HTTP Request2",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://encorp.ai/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        720
+      ],
+      "id": "2e92cb39-6b0a-4dcb-bac1-4618aa2964f9",
+      "name": "HTTP Request3",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.linkedin.com/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        512
+      ],
+      "id": "297c34c1-554d-46a6-90cc-9d8ff3580014",
+      "name": "HTTP Request4",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "grozdan96@gmail.com",
+        "subject": "={{ $json.error.message }}",
+        "emailType": "text",
+        "message": "={{ $json.error.stack }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        192
+      ],
+      "id": "73372480-a87c-4833-847b-af72ad44dd79",
+      "name": "Send a message",
+      "webhookId": "d1b44623-ff74-41cb-940f-34e68db437da",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Uptime & Latency Monitor from a list\nMonitor uptime of at least 5 services (facebook,\ngoogle, linkedin, x.com, encorp.ai)\nIf any of these services return a response different\nthan 200 → Send an email to you",
+        "height": 144,
+        "width": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "287fb5b7-d87a-4484-b4c1-7661e4224f84",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a271b0f7-383f-4231-9e17-8853b1528c40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "FOTzTHY5Qj24VY7n",
+  "tags": []
+}

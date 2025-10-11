@@ -1,0 +1,496 @@
+{
+  "name": "2 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Work resume",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone",
+              "placeholder": "+359...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Years of experience",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Key skills",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Java"
+                  },
+                  {
+                    "option": "Spring"
+                  },
+                  {
+                    "option": "Micronaut"
+                  },
+                  {
+                    "option": "SQL/Oracle"
+                  },
+                  {
+                    "option": "Docker"
+                  },
+                  {
+                    "option": "Kubernetes"
+                  },
+                  {
+                    "option": "JavaScript/TS"
+                  },
+                  {
+                    "option": "AWS"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Position applied for",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Backend Engineer"
+                  },
+                  {
+                    "option": "Full-stack Engineer"
+                  },
+                  {
+                    "option": "DevOps Engineer"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location",
+              "placeholder": "Location",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Consent to process data",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "consent"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -448,
+        48
+      ],
+      "id": "ed06d4b1-e885-42a1-b2a2-7b3dfbbdeb66",
+      "name": "On form submission",
+      "webhookId": "a4be4d72-fe3b-422c-b3e1-cb51e5c0abd9"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.toJsonString()}}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n\t\"name\": \"name\",\n\t\"email\": \"email\",\n    \"phone\": \"phone\",\n    \"yearsOfExperience\": 3,\n    \"skills\": [\"skill1\", \"skill2\"]\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        48
+      ],
+      "id": "1a7a8436-c826-4211-8949-a273cf2e0dbe",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        224
+      ],
+      "id": "e1604543-32f9-4676-9869-2538809ecc74",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "17e8424b-2547-4c70-a685-c8f0fc5bdde1",
+              "leftValue": "={{ $json.output.yearsOfExperience }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ee26e7ae-1059-48d0-83b2-07218acad980",
+              "leftValue": "={{ $json.output.skills }}",
+              "rightValue": "Spring",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            },
+            {
+              "id": "ded0299f-6fea-44f6-aa7c-d4cf36a2514f",
+              "leftValue": "={{ $json.output.skills }}",
+              "rightValue": "Micronaut",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        48
+      ],
+      "id": "b96c5435-11d5-4f6f-b221-bc38b89547d8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "Task:\n1. Create a Form Trigger that you for job applications (Work\nresume). Add all kind of fields - text, number, dropdown,\netc. and request all the data that you need from the\napplicant.\n2. Use Information Extractor to pull the following data: name,\nemail, phone, years of experience and skills\n3. Check if the candidate meets the minimum requirements -\n3+ years of experience and at least two types of skills that\nare needed (by choice as you are the employer :) ).\n4. Split the qualified and unqualified candidates\n5. Output the qualified candidates information\nBonus:\n6. Store the data for the qualified candidates in a Google\nSheet\n7. Add a Basic LLM chain OR set of nodes that will enrich the\nqualified candidates data with scores based on years of\nexperience and skills (more is better)",
+        "height": 384,
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "5a756155-3682-482e-9d8e-7450bfac1d21",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Split candidates into qualified and not",
+        "height": 240,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "ec9dfc04-90a3-460a-84b9-e0eab1c32216",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VcrSiYy4OTuZJo2U0th_D-FCXHc33KarFqfXZ4mXWpQ",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "839430490",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.output.name }}",
+            "Email": "={{ $json.output.email }}",
+            "Phone": "={{ $json.output.phone }}",
+            "Years of experience": "={{ $json.output.yearsOfExperience }}",
+            "Skills": "={{ $json.output.skills.join() }}",
+            "Score": "={{ $json.output.score }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Years of experience",
+              "displayName": "Years of experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        32
+      ],
+      "id": "0f259d65-1fff-4748-9414-9c32962c2a9b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zmJwCQphivXuFl5d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Review candidate data ::: {{$json.toJsonString()}} ::: and add additional field in the candidate json object named \"score\" with numeric value (the more is better) based on years of experience and skills",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        448,
+        32
+      ],
+      "id": "735e5eb3-995e-43b8-8dcb-591ba1e85bce",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "id": "99b59fe9-923d-4e25-851c-eb6ac6f6a000",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n\t\"candidate\": {{ $json.output.toJsonString() }}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        224
+      ],
+      "id": "61bf1e03-e16e-48c6-8c39-eeec3567969e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "content": "Enrich the\nqualified candidates data with scores based on years of\nexperience and skills (more is better)",
+        "height": 432,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "ac7aea0f-a505-469c-ac38-d6ff5217098d",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c68dec43-8bef-4662-a0ce-3ab64a522c02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "URPUEw1kq6QZ8w87",
+  "tags": []
+}

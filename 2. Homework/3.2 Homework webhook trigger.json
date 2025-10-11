@@ -1,0 +1,592 @@
+{
+  "name": "3.2 Homework webhook trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "026e2c3d-c737-4eb5-832a-3fc675bf7b94",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        -64
+      ],
+      "id": "60c81f8d-f2bd-44d5-97cb-bc8f0e12a6e6",
+      "name": "Webhook",
+      "webhookId": "026e2c3d-c737-4eb5-832a-3fc675bf7b94"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        -64
+      ],
+      "id": "1c442756-693a-4f41-94f1-963845732fad",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.article }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Technology"
+            },
+            {
+              "category": "Business"
+            },
+            {
+              "category": "Health"
+            },
+            {
+              "category": "Entertainment"
+            },
+            {
+              "category": "Sports"
+            },
+            {
+              "category": "Other"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        -80
+      ],
+      "id": "7baa292c-fd12-40cb-b1e4-e68e81b833e7",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        256
+      ],
+      "id": "c3a48ca2-e15d-4940-bbcc-3aaa25651104",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "780fe71d-98e2-4826-8955-c1eb0a4fbdbf",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "f7acd120-0885-4f9b-87a2-7645c8c5f4bf",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "a9b340ea-cc6e-4f3b-8ffc-3c5b9c2c7f45",
+              "name": "content",
+              "value": "={{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "d2a3437a-c8c9-41e4-b29b-0cdddb24fd3d",
+              "name": "category",
+              "value": "Business",
+              "type": "string"
+            },
+            {
+              "id": "b1b9789a-701e-49ef-bd7b-8696b88ee5b8",
+              "name": "timestamp",
+              "value": "={{ $now.toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -176
+      ],
+      "id": "6bb62b44-dfe5-4f60-beaf-eb1a63183d70",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "880b34db-8a1f-4a07-888b-098b5e145583",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "b6252878-2d0e-41c5-8401-0d20750ba7aa",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "c428edc2-be3e-4c1c-ac7b-c133b9b9d0c5",
+              "name": "content",
+              "value": "={{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "bc05f6c1-ae5a-4ce4-b5ad-4af1c6b969d3",
+              "name": "category",
+              "value": "Technology",
+              "type": "string"
+            },
+            {
+              "id": "ba61367f-7c58-4eff-80c9-fe36ca273b50",
+              "name": "timestamp",
+              "value": "={{ $now.toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        -288
+      ],
+      "id": "5f89c5f7-50a1-4697-ad7a-8ba00a9a63ad",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a2cf594-4bd4-4bba-ab59-f2e5c0689b42",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "ce95ad4c-79e7-45e2-b533-b4a5e72d2c66",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "8ee1c0f8-70d5-494c-b2e1-87e3fb2d5551",
+              "name": "content",
+              "value": "={{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "1d8307cc-2d91-46bf-aae0-64dddc97ad27",
+              "name": "category",
+              "value": "Health",
+              "type": "string"
+            },
+            {
+              "id": "ff326480-f8fc-40ad-817d-5fb481d2c93f",
+              "name": "timestamp",
+              "value": "={{ $now.toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -16
+      ],
+      "id": "66b44649-571c-417d-9261-02d1e56eebe6",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "934b37d3-5468-4245-8f16-e2e60fcc32fd",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "3a6c31a5-7cdd-4adc-ae94-d715046296fa",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "872c3a78-9009-4c75-be7b-7c60495014dc",
+              "name": "content",
+              "value": "{{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "6ae936bb-927b-4cd7-90c8-0d25647848a2",
+              "name": "category",
+              "value": "Entertainment",
+              "type": "string"
+            },
+            {
+              "id": "97feca5b-c0e6-4af8-bdc3-c926b513e6bb",
+              "name": "timestamp",
+              "value": "={{ $now.toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        352
+      ],
+      "id": "e9afd449-55b1-4b89-8c6b-c1c5d1ce2972",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9a877ef2-d83b-4b89-9099-ca0b05760b82",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "5d51a64a-27e1-424c-a964-6beb83220169",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "8688d8f2-ad5d-428a-b8b0-809553ab6ada",
+              "name": "content",
+              "value": "={{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "fac66944-594d-415d-8054-bd1989234f57",
+              "name": "category",
+              "value": "Sports",
+              "type": "string"
+            },
+            {
+              "id": "3c4412dd-8a7e-4490-a6e4-c747d1909739",
+              "name": "timestamp",
+              "value": "={{ $now.toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        144
+      ],
+      "id": "a524afe4-41e3-45cb-8461-75352118d87c",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Run Once for All Items\nconst all =  $input.all();\nconst items = all.map(i => i.json);\n\nconst stats = {};\nlet total = 0;\n\nfor (const j of items) {\n  const category = String(j.category || j.branch || 'Unknown');\n  const title   = j.title   ?? j.article?.title   ?? '';\n  const author  = j.author  ?? j.article?.author  ?? '';\n  const content = j.content ?? j.article?.content ?? '';\n\n  if (!stats[category]) stats[category] = { count: 0, titles: [], authors: new Set(), avgLen: 0 };\n\n  const s = stats[category];\n  s.count += 1;\n  s.titles.push(title);\n  if (author) s.authors.add(author);\n  const len = String(content).length;\n  s.avgLen += (len - s.avgLen) / s.count;\n\n  total += 1;\n}\n\n// normalize\nfor (const k of Object.keys(stats)) {\n  stats[k].authors = Array.from(stats[k].authors);\n  stats[k].avgLen = Math.round(stats[k].avgLen);\n}\n\nreturn [{ json: { total, byCategory: stats } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        32
+      ],
+      "id": "8d945156-acd3-4cea-9b5d-255f36aca456",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        -16
+      ],
+      "id": "646f2579-d825-4f25-b6fb-ca651331239d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "errorType": "errorObject",
+        "errorObject": "={{ JSON.stringify({\n  name: 'ArticleRejected',\n  message: 'Other branch',\n  data: $json\n}) }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        64,
+        480
+      ],
+      "id": "c87186d9-a172-454a-90fd-8729ab1a3ebd",
+      "name": "Stop and Error",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9084cb5-0345-4016-94f6-f55a10f74cc3",
+              "name": "title",
+              "value": "={{ $json.article.title }}",
+              "type": "string"
+            },
+            {
+              "id": "8f6d07a5-ed20-4aa1-a284-8c79f2666e2a",
+              "name": "author",
+              "value": "={{ $json.article.author }}",
+              "type": "string"
+            },
+            {
+              "id": "f854b5b6-1b40-459c-bf74-48be99293da0",
+              "name": "content",
+              "value": "={{ $json.article.content }}",
+              "type": "string"
+            },
+            {
+              "id": "2e9a0752-6f29-4cfa-a224-23e2fb83ea01",
+              "name": "category",
+              "value": "Other",
+              "type": "string"
+            },
+            {
+              "id": "fd260ddf-937c-4d94-bf57-05cd63089404",
+              "name": "timestamp",
+              "value": "={{$now}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        432
+      ],
+      "id": "3d19640c-0c18-41e2-941f-2bab4aff3e41",
+      "name": "Edit Fields5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "tX4X6Gqoz9uleoad"
+  },
+  "versionId": "b56ecf76-3612-4638-930d-e4082dd5a7c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "So5DDgSQJXwKIdAv",
+  "tags": []
+}

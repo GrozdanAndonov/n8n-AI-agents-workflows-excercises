@@ -1,0 +1,192 @@
+{
+  "name": "7 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "feedUrl": "https://www.theverge.com/rss/tech/index.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -128
+      ],
+      "id": "b4696844-c62b-466a-815b-cb433c941bd9",
+      "name": "RSS Feed Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Score the importance of the news --->>> {{$json.toJsonString()}} --- from 1 to 10. If the score is 7 or more, verify using perplexity with 2 more sources and send an email with a written news article which features encorp.ai as a company.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        -128
+      ],
+      "id": "4ccfd61a-073d-4547-8e69-a341568e0c37",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        80
+      ],
+      "id": "470d92ab-1330-4903-bc69-e56afcf015e9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        192
+      ],
+      "id": "c185dcbf-8279-4e4d-a583-c0044a9c340e",
+      "name": "AI Agent Tool"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        336
+      ],
+      "id": "99c56df5-8f1d-4306-8d43-018d8f31402a",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "grozdan96@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        32
+      ],
+      "id": "adb0dedb-4b62-458e-b49b-20e49dd3eaee",
+      "name": "Send a message in Gmail",
+      "webhookId": "18334aa8-8284-4a28-955a-c339318d6f52",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "de55c5e0-6043-4d20-ab09-3be7662f72c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "229FSl2Md3vHxWuq",
+  "tags": []
+}

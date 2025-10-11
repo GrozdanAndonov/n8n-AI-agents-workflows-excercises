@@ -1,0 +1,883 @@
+{
+  "name": "5 Homework BONUS",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Support Ticket Router with Human Support\n\nTask:\n1. Use a trigger that will pass support tickets (Chat, Webhook,\nForm, etc.)\n2. Use Sentiment analysis to assess urgency (add the\naccording sentiment categories)\n3. Use Text Classifier to categorise by department (Sales,\nTechnical, Billing, General)\n4. Implement Human in the Loop that must confirm the\nsentiment category or change it. The change must be\nedited in the support ticket data\n5. Use AI Agent node with the proper instructions to process\nand answer the support ticket and use the following tools:\na. Google Sheet tool - the agent will add the process\ndata to the sheet that will have the following columns:\ndate of process, ticket text, sentiment category,\ndepartment, AI Agent proposed answer.\nb. Google Tasks tool - add the ticket as task in Google\nTasks by adding task title as short summary and short\ntask notes with summary.",
+        "height": 464,
+        "width": 528,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "6a044d06-b321-4515-bf35-22d1ba5b4643",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "path": "69754633-a187-4f2c-a872-f0648c666e9d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        592
+      ],
+      "id": "cc5888d4-28ee-4d6d-97f2-059734733924",
+      "name": "Webhook",
+      "webhookId": "69754633-a187-4f2c-a872-f0648c666e9d"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        368
+      ],
+      "id": "b444c6c0-d8ee-495c-b6e6-f45ba29c5352",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nreturn [\n  {\n    \"subject\": \"Cannot log in after password reset\",\n    \"message\": \"I reset my password but still get an 'invalid credentials' error.\",\n    \"tags\": [\"login\", \"password-reset\", \"blocked\"]\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        368
+      ],
+      "id": "6cdab408-9759-4de9-ba96-4773834da7af",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "inputText": "=Subject:{{ $json.subject }}, message:{{ $json.message }}, tags:{{ $json.tags }}",
+        "options": {
+          "categories": "Issue, NiceToHave",
+          "systemPromptTemplate": "You are highly intelligent and accurate sentiment analyzer. Analyze the sentiment of the provided text. Categorize it into one of the following: {categories}. Use the provided formatting instructions. Only output the JSON",
+          "includeDetailedResults": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        432
+      ],
+      "id": "9c875968-dce8-4e22-bb82-99e538f01d01",
+      "name": "Sentiment Analysis"
+    },
+    {
+      "parameters": {
+        "inputText": "=The text is {{ $json.toJsonString() }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Sales"
+            },
+            {
+              "category": "Technical"
+            },
+            {
+              "category": "Biling"
+            },
+            {
+              "category": "General"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        368
+      ],
+      "id": "3cf03e99-0021-44e0-8c28-0842115755d4",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        400
+      ],
+      "id": "451339dc-8bcb-478b-81c5-9c5f972ed82b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "sentimentAnalysis",
+              "value": "={{ $json.sentimentAnalysis }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        352
+      ],
+      "id": "9bd921e6-bb95-40aa-ab65-3514df623a00",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "sentimentAnalysis",
+              "value": "={{ $json.sentimentAnalysis }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        528
+      ],
+      "id": "9580cbde-6bb1-4046-9451-fe780e991923",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        992
+      ],
+      "id": "887159c2-f26b-48cd-bb67-0a780c4ebbaa",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "6389689949",
+        "message": "=----Ticket----\nSubject::{{ $json.subject }}\nMessage::{{ $json.message }}\nDepartment::{{ $json.department }}\n\nDo you approve the department? If not then write to which of the departments it must be labeled to. (Departmens: \"Sales\", \"Technical\", \"Billing\", \"General\")",
+        "responseType": "freeText",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2128,
+        384
+      ],
+      "id": "eb6f9468-be8d-4edb-9fe9-cb34e5af0fc1",
+      "name": "Request approval",
+      "webhookId": "9106b948-23b6-46a3-b8ca-da7697ef0407",
+      "credentials": {
+        "telegramApi": {
+          "id": "KBRS3j6QuJcPZ6BI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "=Response:{{ $json.data.text }} and ticket info: {{ $('Merge1').item.json.toJsonString() }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "approved"
+            },
+            {
+              "category": "declined"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        2320,
+        384
+      ],
+      "id": "c14b70b8-b80c-47a2-99a0-c04d599f1685",
+      "name": "Text Classifier1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "category",
+              "value": "=Sales",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        112
+      ],
+      "id": "3144f934-f3ef-48d7-a388-e77685ea0556",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "department",
+              "value": "=Technical",
+              "type": "string"
+            },
+            {
+              "id": "f1526f2a-b2c6-4ee8-9900-4a0d88a7326e",
+              "name": "sentimentCategory",
+              "value": "={{ $json.sentimentAnalysis.category }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        256
+      ],
+      "id": "41232fd7-07a3-4f80-bf59-613ed8451e75",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "category",
+              "value": "=Billing",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        416
+      ],
+      "id": "44fe29dc-1d65-47fc-849b-0045a5b0816f",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00b4650f-6985-42af-bbb2-e6848f3402b0",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "69e8f092-6ac2-4eac-bce8-d5dad2c66cb6",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "b9f3f4fd-7618-4f39-b1c0-2ae5efe3c733",
+              "name": "tags",
+              "value": "={{ $json.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "53dbf983-45ea-43ae-b23d-f6be002fcbae",
+              "name": "category",
+              "value": "=General",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        608
+      ],
+      "id": "b899fae3-8b01-4ced-9976-f8f512a23dc3",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Response:{{ $json.data.text }} and ticket info: {{ $('Merge1').item.json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=Use the ticket info json and update the department as told in Response and return json"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2368,
+        624
+      ],
+      "id": "43b9793b-f40e-4efd-88b1-cb26ad61ce60",
+      "name": "Revision Agent"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1856,
+        384
+      ],
+      "id": "ff70655b-09db-4e3b-842e-56d05f9ab0ed",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.output }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        624
+      ],
+      "id": "5e8b4075-8eb6-493a-8854-e9e045b8c87b",
+      "name": "Parse json"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_7UfixBIiFBva7-GCRoc_mPDAxHTO3qlGzMt44kMdvg",
+          "mode": "list",
+          "cachedResultName": "Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_7UfixBIiFBva7-GCRoc_mPDAxHTO3qlGzMt44kMdvg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Лист1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_7UfixBIiFBva7-GCRoc_mPDAxHTO3qlGzMt44kMdvg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date of process": "={{ $now }}",
+            "Description": "={{ $('Merge1').item.json.subject }}::{{ $('Merge1').item.json.message }}",
+            "Department": "={{ $('Merge1').item.json.department }}",
+            "Sentiment category": "={{ $('Merge1').item.json.sentimentCategory }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date of process",
+              "displayName": "Date of process",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment category",
+              "displayName": "Sentiment category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Agent proposed answer",
+              "displayName": "AI Agent proposed answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2944,
+        320
+      ],
+      "id": "314f01ca-7d35-4138-8938-b779c77e641d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zmJwCQphivXuFl5d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "task": "MTAwMTM5NTAyODA2MTk3NDE0MjQ6MDow",
+        "title": "={{ $('Merge1').item.json.subject }}",
+        "additionalFields": {
+          "notes": "={{ $('Merge1').item.json.message }} Department:{{ $('Merge1').item.json.department }} Category:{{ $('Merge1').item.json.sentimentCategory }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleTasks",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        496
+      ],
+      "id": "3342ef49-a23f-49e9-a9c6-78e2312cc84c",
+      "name": "Create a task",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "CPjVDwrsUEBJO5Z3",
+          "name": "Google Tasks account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {}
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Text Classifier1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Revision Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request approval": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Revision Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Revision Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Request approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse json": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "tX4X6Gqoz9uleoad"
+  },
+  "versionId": "f57befca-255f-4338-a83a-e0cd14db7162",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "ui3gGYfp6GuqW1AA",
+  "tags": []
+}

@@ -1,0 +1,185 @@
+{
+  "name": "8. AI agent which searches info in the internet - perplexity",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -784,
+        -16
+      ],
+      "id": "b1d644d2-c8a9-42b2-b0a8-4415046baf54",
+      "name": "When chat message received",
+      "webhookId": "ab142b20-8a74-4ed3-b314-9301b8892638"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an inspector which can say if a given information is true or false. Use internet to verify the information and provide facts that are provind that you are correct."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -576,
+        -16
+      ],
+      "id": "b4d281c8-5714-45df-b699-bb9d4666c5ca",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        176
+      ],
+      "id": "b43bc21a-8e7a-4b24-a812-7096a1a2fed4",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -496,
+        192
+      ],
+      "id": "98a26bba-210d-45eb-b6b7-4f09c1f2e6f8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        96
+      ],
+      "id": "c4f52860-236f-422b-b3af-cacdd6fe264b",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "This AI agent is used for searching in internet",
+        "text": "Search in internet ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        336
+      ],
+      "id": "e3645893-92f2-46d5-ae9b-972e762028d4",
+      "name": "AI Agent Tool"
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        496
+      ],
+      "id": "2570cea6-21ef-49cc-aa0d-bfdd7732dd11",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "320739b3-504e-474c-9f7b-887458e0d4b9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "E8fDlTa4Qy7fQPT9",
+  "tags": []
+}

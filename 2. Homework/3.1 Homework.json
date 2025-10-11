@@ -1,0 +1,73 @@
+{
+  "name": "3.1 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Smart Content Categorizer\nTask:\n1. Use a Webhook trigger to receive an array of short article\nsubmissions. The webhook will be triggered from a HTTP\nnode that will make manual POST requests (you can place\nthe HTTP node in the same workflow)\n2. Split the articles into separate items\n3. Use Text Classifier to categorise articles into: Technology,\nBusiness, Health, Entertainment, Sports\n4. Use the Edit node to add “category” and “timestamp” fields\nto each article\n5. If the article can not be categorised (f.e. It is not an article\nbut spam message)- output it in “Other” branch and use\nthe Stop and Error node to cut the execution\n6. Merge all classified articles into one single statistic\nBonus:\n7. Set up an Error workflow that will handle the error trigger by\ngetting the article text and\n8. Sending it to a Slack/Telegram/Email (by choice)",
+        "height": 464,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "30f3859e-7e45-4c44-a6bb-e08953353168",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        112
+      ],
+      "id": "91ee47fc-6918-4188-88a4-69c216c73cc3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.grozdan-space.com/webhook-test/026e2c3d-c737-4eb5-832a-3fc675bf7b94",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "[\n  {\n    \"article\": {\n      \"title\": \"The Rise of AI Assistants\",\n      \"author\": \"Liam Novak\",\n      \"content\": \"AI assistants are becoming more capable, handling tasks from writing to workflow automation.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Next-Gen Chips Powering the Future\",\n      \"author\": \"Yara Collins\",\n      \"content\": \"Hardware innovation is accelerating, enabling faster data processing and smarter devices.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"The Future of Remote Work\",\n      \"author\": \"Alex Chen\",\n      \"content\": \"Companies are investing in hybrid work models that balance flexibility with collaboration.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Leadership in a Digital World\",\n      \"author\": \"Stefan Georgiev\",\n      \"content\": \"Modern leaders focus on adaptability, transparent communication, and data-driven decision making.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Mindfulness and Focus in the Digital Age\",\n      \"author\": \"Ethan Morales\",\n      \"content\": \"Daily meditation and screen-time control are becoming essential for mental well-being.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Nutrition and Longevity\",\n      \"author\": \"Dr. Alice Radev\",\n      \"content\": \"Balanced diets rich in whole foods are linked to longer, healthier lives.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Streaming Platforms Redefine TV\",\n      \"author\": \"Marta Ivanova\",\n      \"content\": \"On-demand streaming continues to dominate as traditional television loses ground.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Virtual Concerts and Digital Events\",\n      \"author\": \"Chris Marinov\",\n      \"content\": \"Artists embrace virtual stages to reach global audiences without physical limits.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"AI Analytics Transform Sports Strategy\",\n      \"author\": \"Jordan Petrov\",\n      \"content\": \"Teams leverage real-time data to optimize performance and reduce injury risk.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Women Breaking Records in 2025\",\n      \"author\": \"Nadia Stoyanova\",\n      \"content\": \"Female athletes continue to set new benchmarks across multiple sports disciplines.\"\n    }\n  },\n    {\n    \"article\": {\n      \"title\": \"The Art of Minimalist Living\",\n      \"author\": \"Clara Dimitrova\",\n      \"content\": \"A growing number of people are simplifying their homes and routines to focus on essentials and mental peace.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Discovering Bulgaria’s Hidden Villages\",\n      \"author\": \"Ivan Stoyanov\",\n      \"content\": \"Small mountain villages preserve centuries-old traditions and offer a quiet retreat from city life.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"The Psychology of Color in Everyday Life\",\n      \"author\": \"Maya Vasileva\",\n      \"content\": \"Colors influence mood, energy, and perception far more than most people realize.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Urban Gardening for Beginners\",\n      \"author\": \"Peter Kolev\",\n      \"content\": \"With a few containers and the right sunlight, even apartment dwellers can grow their own vegetables.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Why People Collect Vintage Cameras\",\n      \"author\": \"George Marin\",\n      \"content\": \"Collectors are drawn to the craftsmanship, history, and nostalgia of analog photography.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"The Language of Perfume\",\n      \"author\": \"Sofia Krusteva\",\n      \"content\": \"Perfumers blend natural and synthetic notes to tell stories through scent.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Understanding Dreams and Memory\",\n      \"author\": \"Dr. Nikola Videnov\",\n      \"content\": \"Recent studies explore how dreams help the brain consolidate experiences into long-term memory.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Street Art as Social Commentary\",\n      \"author\": \"Elena Koleva\",\n      \"content\": \"Murals and graffiti have evolved into powerful tools for political and cultural expression.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"How Postcards Became Collectors’ Items\",\n      \"author\": \"Martin Petkov\",\n      \"content\": \"Once simple travel mementos, postcards are now valued as historic and artistic artifacts.\"\n    }\n  },\n  {\n    \"article\": {\n      \"title\": \"Reviving the Craft of Pottery\",\n      \"author\": \"Desislava Ruseva\",\n      \"content\": \"Handmade ceramics are experiencing a renaissance as people seek authenticity and slower forms of creation.\"\n    }\n  }\n]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        112
+      ],
+      "id": "75f5d0d4-d281-4241-ae9d-e8269df5f0c1",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ef15c01a-ae0c-443f-ba5c-cbc290539026",
+  "meta": {
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "XrOPySL6tk9EABTS",
+  "tags": []
+}

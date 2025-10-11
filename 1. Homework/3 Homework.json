@@ -1,0 +1,166 @@
+{
+  "name": "3 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://hn.algolia.com/api/v1/search?query={{ $json.keyword }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        -64
+      ],
+      "id": "966203c3-f874-40e0-91cf-419b1bf3e2fa",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -64
+      ],
+      "id": "f4c2e01c-da2b-4384-ad12-8cd89904d941",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "chatId": "6389689949",
+        "text": "={{ $json.title }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        -64
+      ],
+      "id": "614f9e12-eb79-4955-a200-a18335c2649a",
+      "name": "Send a text message",
+      "webhookId": "509472ee-c9f9-412a-abe9-d36633321dcb",
+      "credentials": {
+        "telegramApi": {
+          "id": "KBRS3j6QuJcPZ6BI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"title\": \"{{ $json.title}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "dabbec13-3de9-4cd0-9184-de3e4524cd8c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "hits",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        -64
+      ],
+      "id": "c6744e33-0fd9-4f5f-bb14-0a589c92cb26",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "content": "Monitor HN for keywords (e.g.,\n“n8n”\n,\n“automation”)\nand post matching titles to a telegram chat.\nFree API: https://hn.algolia.com/api/v1/search?query=\n<q>",
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -288
+      ],
+      "typeVersion": 1,
+      "id": "afb7f472-56dd-40be-a360-adf23596d9a6",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "keyword": "n8n"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ac83032c-a052-4b2d-81bf-2c0dca41771f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "MpTIFtNhzyqRqRFD",
+  "tags": []
+}

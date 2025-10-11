@@ -1,0 +1,188 @@
+{
+  "name": "4. Http request",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        -32
+      ],
+      "id": "b66f09c2-07fb-4c5a-a05b-ae96acbba14f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ $json.coordinates.lat }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ $json.coordinates.lng }}"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,wind_speed_10m"
+            },
+            {
+              "name": "hourly",
+              "value": "temperature_2m,relative_humidity_2m,wind_speed_10m"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        -32
+      ],
+      "id": "accac573-aacf-42c6-a125-1a95e1e9052a",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "city": "Tokyo",
+          "country": "Japan",
+          "population": 37400068,
+          "coordinates": {
+            "lat": 35.6895,
+            "lng": 139.6917
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cairo",
+          "country": "Egypt",
+          "population": 10230350,
+          "coordinates": {
+            "lat": 30.0444,
+            "lng": 31.2357
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Ottawa",
+          "country": "Canada",
+          "population": 1076000,
+          "coordinates": {
+            "lat": 45.4215,
+            "lng": -75.6972
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Canberra",
+          "country": "Australia",
+          "population": 472000,
+          "coordinates": {
+            "lat": -35.2809,
+            "lng": 149.13
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Nairobi",
+          "country": "Kenya",
+          "population": 5545000,
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Buenos Aires",
+          "country": "Argentina",
+          "population": 3075646,
+          "coordinates": {
+            "lat": -34.6037,
+            "lng": -58.3816
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Berlin",
+          "country": "Germany",
+          "population": 3645000,
+          "coordinates": {
+            "lat": 52.52,
+            "lng": 13.405
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Pretoria",
+          "country": "South Africa",
+          "population": 741651,
+          "coordinates": {
+            "lat": -25.7479,
+            "lng": 28.2293
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cape Town",
+          "country": "South Africa",
+          "population": 4337000,
+          "coordinates": {
+            "lat": -33.9249,
+            "lng": 18.4241
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Sofia",
+          "country": "Bulgaria",
+          "population": 1241675,
+          "coordinates": {
+            "lat": 42.6977,
+            "lng": 23.3219
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de213e03-9dc6-498e-b060-a693478d1c1f",
+  "meta": {
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "m8eFW7SdByY07rTU",
+  "tags": []
+}

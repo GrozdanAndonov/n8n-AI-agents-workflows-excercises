@@ -1,0 +1,403 @@
+{
+  "name": "7. Combine weather forecast with cities and notify via email if there will be severe weather conditions",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ $json.coordinates.lat }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ $json.coordinates.lng }}"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,wind_speed_10m"
+            },
+            {
+              "name": "hourly",
+              "value": "temperature_2m,relative_humidity_2m,wind_speed_10m"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -208,
+        -144
+      ],
+      "id": "cf8feb0b-3f8c-4aa9-8f14-ad60fbe24e3d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0dd6e968-2e20-4dfa-a10f-9f72aaf0a3d7",
+              "name": "cities",
+              "value": "{  \"city\": \"Tokyo\",     \"country\": \"Japan\",     \"population\": 37400068,     \"coordinates\": {       \"lat\": 35.6895,       \"lng\": 139.6917     }   },   {     \"city\": \"Cairo\",     \"country\": \"Egypt\",     \"population\": 10230350,     \"coordinates\": {       \"lat\": 30.0444,       \"lng\": 31.2357     }   },   {     \"city\": \"Ottawa\",     \"country\": \"Canada\",     \"population\": 1076000,     \"coordinates\": {       \"lat\": 45.4215,       \"lng\": -75.6972     }   },   {     \"city\": \"Canberra\",     \"country\": \"Australia\",     \"population\": 472000,     \"coordinates\": {       \"lat\": -35.2809,       \"lng\": 149.13     }   },   {     \"city\": \"Nairobi\",     \"country\": \"Kenya\",     \"population\": 5545000,     \"coordinates\": {       \"lat\": -1.2921,       \"lng\": 36.8219     }   },   {     \"city\": \"Buenos Aires\",     \"country\": \"Argentina\",     \"population\": 3075646,     \"coordinates\": {       \"lat\": -34.6037,       \"lng\": -58.3816     }   },   {     \"city\": \"Berlin\",     \"country\": \"Germany\",     \"population\": 3645000,     \"coordinates\": {       \"lat\": 52.52,       \"lng\": 13.405     }   },   {     \"city\": \"Pretoria\",     \"country\": \"South Africa\",     \"population\": 741651,     \"coordinates\": {       \"lat\": -25.7479,       \"lng\": 28.2293     }   },   {     \"city\": \"Cape Town\",     \"country\": \"South Africa\",     \"population\": 4337000,     \"coordinates\": {       \"lat\": -33.9249,       \"lng\": 18.4241     }   },   {     \"city\": \"Sofia\",     \"country\": \"Bulgaria\",     \"population\": 1241675,     \"coordinates\": {       \"lat\": 42.6977,       \"lng\": 23.3219     }   }",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        -32
+      ],
+      "id": "9809e550-36c6-4014-8da0-92c2ed075bae",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        16,
+        64
+      ],
+      "id": "4aa73ab6-6782-48f5-9374-349a06cd8fac",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        224,
+        64
+      ],
+      "id": "330be290-1e93-4137-8481-179ec5202e8e",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=--- weather data ---\n{{ $json.data.toJsonString() }}",
+        "options": {
+          "systemMessage": "You are a severe weather notification specialist. Based on the provided information decide if there is a severe weather in any of the locations. In case there is a severe weather send an email to grozdan96@gmail.com to notify them that there is dangerous weather. If there is no severe weather conditions - just provide response and don't do anything else"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        64
+      ],
+      "id": "5275d173-a78e-4e91-bb78-e9ea58188ef8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4-fast:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        416,
+        256
+      ],
+      "id": "a9775f7d-19f7-4810-b941-b2eff0514c26",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        592,
+        272
+      ],
+      "id": "b185210f-6783-4ed0-8386-8de3b25be042",
+      "name": "Send a message in Gmail",
+      "webhookId": "a21b3543-1713-4cde-aee8-28ccc3b4f5c6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        128
+      ],
+      "id": "46220722-9e47-421e-afaf-81dc6fac4ac5",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        -80
+      ],
+      "id": "8b9c6d38-3170-4f5d-b93c-279f367bd2a8",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "city": "Tokyo",
+          "country": "Japan",
+          "population": 37400068,
+          "coordinates": {
+            "lat": 35.6895,
+            "lng": 139.6917
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cairo",
+          "country": "Egypt",
+          "population": 10230350,
+          "coordinates": {
+            "lat": 30.0444,
+            "lng": 31.2357
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Ottawa",
+          "country": "Canada",
+          "population": 1076000,
+          "coordinates": {
+            "lat": 45.4215,
+            "lng": -75.6972
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Canberra",
+          "country": "Australia",
+          "population": 472000,
+          "coordinates": {
+            "lat": -35.2809,
+            "lng": 149.13
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Nairobi",
+          "country": "Kenya",
+          "population": 5545000,
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Buenos Aires",
+          "country": "Argentina",
+          "population": 3075646,
+          "coordinates": {
+            "lat": -34.6037,
+            "lng": -58.3816
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Berlin",
+          "country": "Germany",
+          "population": 3645000,
+          "coordinates": {
+            "lat": 52.52,
+            "lng": 13.405
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Pretoria",
+          "country": "South Africa",
+          "population": 741651,
+          "coordinates": {
+            "lat": -25.7479,
+            "lng": 28.2293
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cape Town",
+          "country": "South Africa",
+          "population": 4337000,
+          "coordinates": {
+            "lat": -33.9249,
+            "lng": 18.4241
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Sofia",
+          "country": "Bulgaria",
+          "population": 1241675,
+          "coordinates": {
+            "lat": 42.6977,
+            "lng": 23.3219
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "597ec70b-4050-4484-b015-751a95c47df4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "wg5kU70ACmheQYSs",
+  "tags": []
+}

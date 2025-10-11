@@ -1,0 +1,459 @@
+{
+  "name": "1 Homework",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        32
+      ],
+      "id": "a612fd02-70b6-4c31-bdbe-2225b51c5147",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        48
+      ],
+      "id": "3d7fface-aa69-480c-86c9-faad25fb8d22",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ $json.coordinates.lat }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ $json.coordinates.lng }}"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,wind_speed_10m"
+            },
+            {
+              "name": "hourly",
+              "value": "temperature_2m,relative_humidity_2m,wind_speed_10m"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        -48
+      ],
+      "id": "949a4b78-a3a4-4af2-81ad-70a7116a079c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        352,
+        96
+      ],
+      "id": "001d1b7b-8357-445e-9eba-e6d162341fe7",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3fd8e429-b13e-406b-825e-cdb99f4e1a48",
+              "leftValue": "={{ $json.current.temperature_2m }}",
+              "rightValue": 15,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        96
+      ],
+      "id": "7ff8bd2c-dd30-4d37-892e-7e9f2fc87fd3",
+      "name": "Filter",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": true,
+      "notes": "Filter the cities with temperatures below 15 degrees."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c0e9c0b6-600b-4937-a8c3-fc7246923a51",
+              "leftValue": "={{ $json.population }}",
+              "rightValue": 5000000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        80
+      ],
+      "id": "9f3e8d0c-3a6d-4d15-8ab2-67387d3cafe4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "Create a workflow upon manual trigger gets the\nweather information about 10 cities (using the test\ndata)\nAfter getting the information it should filter the cities\nwith temperatures below 15 degrees\nThen for the cities with population above 5M it should\nprovide only windspeed information and for cities\nbelow 5M it should provide only information about\nrelative humidity.\nThe output result should be a single item",
+        "height": 208,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        448,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "beb2dd73-bd6e-4a96-a670-fda92d12f95d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"city\": \"{{$json.city}}\",\n  \"country\": \"{{ $json.country }}\",\n  \"population\": {{ $json.population }},\n  \"coordinates\": {{ $json.coordinates.toJsonString() }},\n  \"info\": {\n  \"wind_speed_10m\": {{ $json.hourly.wind_speed_10m }}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        -32
+      ],
+      "id": "af90831d-4c4a-4475-be7c-a7d755f9c199",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"city\": \"{{$json.city}}\",\n  \"country\": \"{{ $json.country }}\",\n  \"population\": {{ $json.population }},\n  \"coordinates\": {{ $json.coordinates.toJsonString() }},\n  \"info\": {\n  \"relative_humidity_2m\": {{ $json.hourly.relative_humidity_2m}}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        160
+      ],
+      "id": "e4bd3d2f-913a-4990-9af5-76b1ef3f70d6",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1376,
+        64
+      ],
+      "id": "92e6aa28-0206-48c9-b431-832c94752c49",
+      "name": "Merge1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        64
+      ],
+      "id": "1f32e920-a7b7-42f1-a4ea-3dbef04834b1",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "city": "Tokyo",
+          "country": "Japan",
+          "population": 37400068,
+          "coordinates": {
+            "lat": 35.6895,
+            "lng": 139.6917
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cairo",
+          "country": "Egypt",
+          "population": 10230350,
+          "coordinates": {
+            "lat": 30.0444,
+            "lng": 31.2357
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Ottawa",
+          "country": "Canada",
+          "population": 1076000,
+          "coordinates": {
+            "lat": 45.4215,
+            "lng": -75.6972
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Canberra",
+          "country": "Australia",
+          "population": 472000,
+          "coordinates": {
+            "lat": -35.2809,
+            "lng": 149.13
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Nairobi",
+          "country": "Kenya",
+          "population": 5545000,
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Buenos Aires",
+          "country": "Argentina",
+          "population": 3075646,
+          "coordinates": {
+            "lat": -34.6037,
+            "lng": -58.3816
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Berlin",
+          "country": "Germany",
+          "population": 3645000,
+          "coordinates": {
+            "lat": 52.52,
+            "lng": 13.405
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Pretoria",
+          "country": "South Africa",
+          "population": 741651,
+          "coordinates": {
+            "lat": -25.7479,
+            "lng": 28.2293
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cape Town",
+          "country": "South Africa",
+          "population": 4337000,
+          "coordinates": {
+            "lat": -33.9249,
+            "lng": 18.4241
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Sofia",
+          "country": "Bulgaria",
+          "population": 1241675,
+          "coordinates": {
+            "lat": 42.6977,
+            "lng": 23.3219
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3295c158-5bc0-4ee0-89e1-692e18ff5d16",
+  "meta": {
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "nn0x7xX7KC8abijg",
+  "tags": []
+}

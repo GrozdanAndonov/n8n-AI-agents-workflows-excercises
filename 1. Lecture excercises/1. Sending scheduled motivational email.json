@@ -1,0 +1,225 @@
+{
+  "name": "1. Sending scheduled motivational email",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        -48
+      ],
+      "id": "42bf8196-f708-4c5f-b8bc-a7d2764f1389",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are motivational speaker, who uses the style of Grant Cardone. Create for me a morning inspirational email to be sent.Provide only the inspiration content without any additional thoughts or information. Provide the output in html format which is ready to be sent as an email.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -592,
+        -48
+      ],
+      "id": "7410a13f-5a65-4bce-a34b-527c0599ca3c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "6a9c87d7-de9c-4421-85a5-e941ba93c479",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "grozdan96@gmail.com",
+        "subject": "Morning motivation",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Your morning motivational assistant"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        -48
+      ],
+      "id": "327b828f-fe2f-4ad3-8765-c640ffcf12c3",
+      "name": "Send a message",
+      "webhookId": "7b5feb79-59a7-4fb0-bd91-8b3592af8341",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are motivational speaker, who uses the style of Grant Cardone. Create for me a morning inspirational email to be sent.Provide only the inspiration content without any additional thoughts or information. Provide the output in html format which is ready to be sent as an email.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -592,
+        352
+      ],
+      "id": "2159ff16-0fca-4606-966e-2d4fac13e462",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        560
+      ],
+      "id": "c699afe7-19aa-45b5-b574-cccf3e315692",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "grozdan96@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        560
+      ],
+      "id": "141085e7-907d-4b97-a6f0-45d7cf3fca76",
+      "name": "Send a message in Gmail",
+      "webhookId": "f76dd2ab-57ad-47eb-b9ba-80839585f1be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05544732-729b-4cd4-b6fc-9c98add74d89",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "j3pRcTvmlPnrGWwp",
+  "tags": []
+}

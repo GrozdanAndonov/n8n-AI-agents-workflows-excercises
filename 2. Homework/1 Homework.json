@@ -1,0 +1,220 @@
+{
+  "name": "1 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Build a workflow that:\n1. Uses a Manual trigger with sample customer feedback\ntexts. Customer feedback can come from anywhere -\nGoogle Sheets, Edit Node, Code Node, etc.\n2. Applies Sentient Analysis to categorize feedback as\npositive, negative or neutral.\n3. Enrich the feedback with timestamp and sentiment scores\n4. Filter the negative feedback\n5. Output the negative feedback data only\nBonus:\n6. Send email with the list of negative feedback comments\nand data\n7. Add strength and confidence thresholds to identify the\nurgent cases (very angry and unhappy customers)",
+        "height": 320,
+        "width": 448
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -512,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "978ccee3-14f2-470e-ae63-9cce870905a1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        304
+      ],
+      "id": "55278200-4349-479b-8727-2d12b5cc8359",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const feedbacks = [\n  // Positive\n  \"The app is easy to use and very intuitive.\",\n  \"Delivery was faster than expected. Great job!\",\n  \"Excellent service — I’ll definitely recommend it.\",\n  \"I love the product quality; totally worth the price.\",\n  \"Thank you for resolving my issue quickly.\",\n  \"Your loyalty program is fantastic!\",\n  \"Chat support was friendly and helpful.\",\n  \"Everything went smoothly — very satisfied.\",\n  \"I appreciate the eco-friendly packaging.\",\n  \"Great experience overall, keep it up.\",\n\n  // Negative\n  \"Customer support took too long to respond.\",\n  \"The payment process failed multiple times.\",\n  \"The color of the item didn’t match the photo online.\",\n  \"Received a damaged package and no one replied to my email.\",\n  \"Prices are too high compared to competitors.\",\n  \"The website layout is confusing on mobile.\",\n  \"The new update made the app crash constantly.\",\n  \"It’s annoying that I can’t cancel my order online.\",\n  \"Product description was inaccurate.\",\n  \"I expected better quality for the price.\",\n\n  // Neutral\n  \"The app works fine, but nothing special.\",\n  \"Product arrived as described.\",\n  \"Support was okay, not great but not terrible.\",\n  \"The checkout process was average.\",\n  \"Delivery took the expected time.\"\n];\n\n// Generate current timestamp with a small random offset (for realism)\nreturn feedbacks.map((text, i) => {\n  const now = new Date();\n  const offsetMinutes = Math.floor(Math.random() * 60 * 24 * 5); // within 5 days\n  const timestamp = new Date(now.getTime() - offsetMinutes * 60000).toISOString();\n\n  return {\n    json: {\n      feedback: text,\n      timestamp: timestamp\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        304
+      ],
+      "id": "f819af0c-2569-42e0-9e54-4e2b2506a8ea",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.feedback }}",
+        "options": {
+          "categories": "Positive, Neutral, Negative",
+          "includeDetailedResults": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        -144,
+        288
+      ],
+      "id": "4ef768d7-840d-4c98-97d0-e43238def295",
+      "name": "Sentiment Analysis"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        496
+      ],
+      "id": "191e540c-c65a-4bee-b22c-6257384dd287",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Prepare email including all feedbacks. Summarize all feedbacks into a single email. Make it look good and easy to read also higlight the very angry and unhappy customers",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        448
+      ],
+      "id": "58ab4e15-63db-46ad-a6e0-bfd127796510",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "grozdan96@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        672
+      ],
+      "id": "b8fd2256-0c9e-43df-8912-37d70bc1a741",
+      "name": "Send a message in Gmail",
+      "webhookId": "5058febc-67a1-4d14-9981-bd5e85be908e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lOJlScTr4imxoEax",
+          "name": "Gmail account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        256,
+        640
+      ],
+      "id": "e194e79a-9ec3-4229-b373-0b094ebe6d36",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "UuYIAcunr7SoYOx9",
+          "name": "OpenRouter - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4bdb02a3-9b3d-4e04-8068-eb55031fc0c6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "qExVfjrb1mvEU02A",
+  "tags": []
+}

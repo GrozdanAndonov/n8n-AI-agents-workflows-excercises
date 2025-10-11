@@ -1,0 +1,246 @@
+{
+  "name": "5 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Create a forms trigger, which asks for a name, gender,\nage and county of residence\nLog form submissions with approximate\ncity/country/ISP based on IP, then branch rules (e.g.,\nEU vs Non-EU).\nCheck if the country of residence is different than the\nIP country.\nFree API: https://ipwho.is/<ip>",
+        "height": 176,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "0f0cd838-48a2-4978-a51e-9483c412483c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "formTitle": "Personal info",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "placeholder": "Name:",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Gender",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "M"
+                  },
+                  {
+                    "option": "F"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Age",
+              "fieldType": "number",
+              "placeholder": "Age:",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Country of residence",
+              "placeholder": "Country of residence",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1056,
+        208
+      ],
+      "id": "88c50b0f-79ae-4dc1-b2a7-0c1b7f96af2f",
+      "name": "On form submission",
+      "webhookId": "793fa186-80a7-418a-ae86-cefd3cc28a7f",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "url": "https://ipwho.is/78.154.15.1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -752,
+        16
+      ],
+      "id": "1d4b6653-841c-42bd-90ef-be791b59aa1d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -560,
+        208
+      ],
+      "id": "ec3705f4-4674-41df-b88f-40cc0c135b2e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Result",
+        "completionMessage": "=Country of residence {{$json[\"Country of residence\"]}} differs from IP country {{ $json.country }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        -32,
+        272
+      ],
+      "id": "797662ce-d9af-4eb1-9a63-82b60d247123",
+      "name": "Form",
+      "webhookId": "f1a67c3c-cdd3-4f3f-b661-6609372093ad"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4f6eca6e-2976-4019-91eb-624a0835d322",
+              "leftValue": "={{ $json.country }}",
+              "rightValue": "={{ $json[\"Country of residence\"] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -352,
+        208
+      ],
+      "id": "21ea3fa6-96ab-4b69-b9a8-02f401b34b4c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Result",
+        "completionMessage": "=Country of residence {{$json[\"Country of residence\"]}} is the same from IP country {{ $json.country }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        -32,
+        112
+      ],
+      "id": "669ff96b-03b1-41aa-9cb8-8998633db690",
+      "name": "Form1",
+      "webhookId": "f1a67c3c-cdd3-4f3f-b661-6609372093ad"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Form1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "9d9afc6e-4f1b-4290-ab52-6fb5cd1b785d",
+  "meta": {
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "IXESCGmm8jIkazV7",
+  "tags": []
+}

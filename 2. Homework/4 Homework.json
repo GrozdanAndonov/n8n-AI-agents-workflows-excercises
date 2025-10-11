@@ -1,0 +1,298 @@
+{
+  "name": "4 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Meeting notes summariser\nTask:\n1. Use an AI model - ChatGPT, Gemini, Claude, etc. to\ngenerate 3-4 meeting notes from different company\ndepartments.\n2. Use a Schedule Trigger to simulate collecting morning\nmeeting notes in a company.\n3. Pass the meeting notes from a Code or Edit node to be\nprocessed by the workflow\n4. Use a Summarisation Chain with “Map Reduce” option to\nsummarise the meetings separately and make a general\nsummary of all morning meetings\n5. Use a Date and Time Node to get the timestamp from the\nSchedule trigger and format the date to a format of choice\n6. Use Edit node to attach the date to the summary.\n## Bonus:\n7. Compare different summarisation methods (Map Reduce\nvs Refine vs Stuff)",
+        "height": 432,
+        "width": 448,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "132a9df7-5bcd-413e-82c8-f7bc9e7dc216",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        496
+      ],
+      "id": "e2290dd5-c18d-49c0-8044-3ebad1ff60e6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nreturn [\n  {\n    \"department\": \"Engineering\",\n    \"date\": \"2025-10-11\",\n    \"meeting_title\": \"Sprint Planning - Release v2.3\",\n    \"notes\": [\n      \"Reviewed pending JIRA tickets from Sprint 42.\",\n      \"Agreed to prioritize API performance improvements and unit test coverage.\",\n      \"Frontend team to finalize new dashboard by Oct 20.\",\n      \"DevOps to optimize CI/CD pipeline and reduce build times by 30%.\",\n      \"Next sync scheduled for Oct 18.\"\n    ]\n  },\n  {\n    \"department\": \"Marketing\",\n    \"date\": \"2025-10-11\",\n    \"meeting_title\": \"Q4 Campaign Launch Preparation\",\n    \"notes\": [\n      \"Approved creative concept for 'SmartSave' ad campaign.\",\n      \"Budget of $80k allocated for social media and influencer marketing.\",\n      \"PR team to finalize press release draft by Oct 14.\",\n      \"Set campaign launch date: Oct 28.\",\n      \"Next review call: Oct 17.\"\n    ]\n  },\n  {\n    \"department\": \"Human Resources\",\n    \"date\": \"2025-10-10\",\n    \"meeting_title\": \"Employee Engagement and Training\",\n    \"notes\": [\n      \"Discussed results from employee satisfaction survey (82% positive).\",\n      \"Plan to introduce leadership workshops in November.\",\n      \"Recruitment updates: 3 new hires confirmed for engineering.\",\n      \"HR to implement new onboarding checklist in BambooHR by Oct 25.\"\n    ]\n  },\n  {\n    \"department\": \"Finance\",\n    \"date\": \"2025-10-09\",\n    \"meeting_title\": \"Q3 Financial Review\",\n    \"notes\": [\n      \"Revenue up 12% compared to Q2, primarily due to subscription renewals.\",\n      \"Operational costs increased by 5% due to server upgrades.\",\n      \"Approved budget for 2026 forecasting tool implementation.\",\n      \"Audit preparation starts Oct 15, led by external partner Deloitte.\"\n    ]\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        496
+      ],
+      "id": "e9e7a6ce-72a6-465f-9908-cb215e1891fc",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        784
+      ],
+      "id": "f8014077-dcd6-4018-8389-7964879487fa",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output.text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        512,
+        496
+      ],
+      "id": "8f4ec06b-5802-497d-9536-c7cae92bba20",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.timestamp }}",
+        "format": "custom",
+        "customFormat": "dd-MM-yyyy HH:mm",
+        "outputFieldName": "date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        320
+      ],
+      "id": "fe9a4260-4503-477d-bc5e-1edc5898ff12",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        496
+      ],
+      "id": "fa8807d2-0e13-4aef-ba90-1781add040f5",
+      "name": "Summarize all sumarizations"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        512
+      ],
+      "id": "2cd44696-2a05-4ec1-b93d-9474875c91d7",
+      "name": "Sumarize department notes"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1312,
+        480
+      ],
+      "id": "928343c3-62a1-4406-8c5d-015488283b27",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5dbd409b-cc07-4ce2-a3b1-ea143d84f70d",
+              "name": "text",
+              "value": "={{ $json.output.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        496
+      ],
+      "id": "e75ec360-1ae6-4300-a0e1-dd6eb524dd06",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Sumarize department notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sumarize department notes",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Summarize all sumarizations",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Summarize all sumarizations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize all sumarizations": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sumarize department notes": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "tX4X6Gqoz9uleoad"
+  },
+  "versionId": "59445a3a-92d1-43dd-afc0-bbd07118454e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "ps1DS9Cud5tynQoW",
+  "tags": []
+}

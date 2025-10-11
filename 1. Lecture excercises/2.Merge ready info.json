@@ -1,0 +1,216 @@
+{
+  "name": "2.Merge ready info",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "59e10abf-1ec7-4578-812f-d82cf172547e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0f2c1ad9-f979-4ed2-88c5-e825d6bcf35a",
+              "leftValue": "={{ $json.country }}",
+              "rightValue": "Japan",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b1c24167-39bc-4044-853d-afdfcfb9a4c3",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "93fd220d-0128-4e8a-ad44-ccd7207ab597",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "city": "Tokyo",
+          "country": "Japan",
+          "population": 37400068,
+          "coordinates": {
+            "lat": 35.6895,
+            "lng": 139.6917
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cairo",
+          "country": "Egypt",
+          "population": 10230350,
+          "coordinates": {
+            "lat": 30.0444,
+            "lng": 31.2357
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Ottawa",
+          "country": "Canada",
+          "population": 1076000,
+          "coordinates": {
+            "lat": 45.4215,
+            "lng": -75.6972
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Canberra",
+          "country": "Australia",
+          "population": 472000,
+          "coordinates": {
+            "lat": -35.2809,
+            "lng": 149.13
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Nairobi",
+          "country": "Kenya",
+          "population": 5545000,
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Buenos Aires",
+          "country": "Argentina",
+          "population": 3075646,
+          "coordinates": {
+            "lat": -34.6037,
+            "lng": -58.3816
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Berlin",
+          "country": "Germany",
+          "population": 3645000,
+          "coordinates": {
+            "lat": 52.52,
+            "lng": 13.405
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Pretoria",
+          "country": "South Africa",
+          "population": 741651,
+          "coordinates": {
+            "lat": -25.7479,
+            "lng": 28.2293
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cape Town",
+          "country": "South Africa",
+          "population": 4337000,
+          "coordinates": {
+            "lat": -33.9249,
+            "lng": 18.4241
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Sofia",
+          "country": "Bulgaria",
+          "population": 1241675,
+          "coordinates": {
+            "lat": 42.6977,
+            "lng": 23.3219
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c0756809-5b2b-4f56-a305-f0ef08170283",
+  "meta": {
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "RTQf0nakcRIPajkt",
+  "tags": []
+}

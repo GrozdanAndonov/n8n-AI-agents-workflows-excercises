@@ -1,0 +1,229 @@
+{
+  "name": "3. Agregate",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -48
+      ],
+      "id": "eeb3b26f-4e27-4ece-adff-ef1d5d3ee0c8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "ec325934-79c4-4089-bfcc-c3b08751058e",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract and return as json object and not in string which city has the most population from  {{ $json.data.toJsonString() }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -48
+      ],
+      "id": "adb402cd-0ce2-45b4-b6f8-c53534104aaf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        160
+      ],
+      "id": "17207926-f125-405c-a468-f8ac81fe572b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rtYnhKJipN8CRDXs",
+          "name": "OpenAi account - ENCORP ACADEMY - grozdan96@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "city": "Tokyo",
+          "country": "Japan",
+          "population": 37400068,
+          "coordinates": {
+            "lat": 35.6895,
+            "lng": 139.6917
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cairo",
+          "country": "Egypt",
+          "population": 10230350,
+          "coordinates": {
+            "lat": 30.0444,
+            "lng": 31.2357
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Ottawa",
+          "country": "Canada",
+          "population": 1076000,
+          "coordinates": {
+            "lat": 45.4215,
+            "lng": -75.6972
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Canberra",
+          "country": "Australia",
+          "population": 472000,
+          "coordinates": {
+            "lat": -35.2809,
+            "lng": 149.13
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Nairobi",
+          "country": "Kenya",
+          "population": 5545000,
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Buenos Aires",
+          "country": "Argentina",
+          "population": 3075646,
+          "coordinates": {
+            "lat": -34.6037,
+            "lng": -58.3816
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Berlin",
+          "country": "Germany",
+          "population": 3645000,
+          "coordinates": {
+            "lat": 52.52,
+            "lng": 13.405
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Pretoria",
+          "country": "South Africa",
+          "population": 741651,
+          "coordinates": {
+            "lat": -25.7479,
+            "lng": 28.2293
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Cape Town",
+          "country": "South Africa",
+          "population": 4337000,
+          "coordinates": {
+            "lat": -33.9249,
+            "lng": 18.4241
+          }
+        }
+      },
+      {
+        "json": {
+          "city": "Sofia",
+          "country": "Bulgaria",
+          "population": 1241675,
+          "coordinates": {
+            "lat": 42.6977,
+            "lng": 23.3219
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "85ce428f-806a-4226-9d2f-78e770460c73",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59eb0af3fb6735ec12943a0d1d1a3430ac66222872d23238d58720c264209eda"
+  },
+  "id": "UfuFXPr9QL3Rc6CV",
+  "tags": []
+}
