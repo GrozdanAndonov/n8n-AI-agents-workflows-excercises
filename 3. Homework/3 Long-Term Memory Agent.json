@@ -1,0 +1,169 @@
+{
+  "name": "3 Long-Term Memory Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9f040631-ba09-4494-974e-56093db091ed",
+      "name": "When chat message received",
+      "webhookId": "8a5a084c-14c8-4707-a577-d318cb20e53d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7b166bec-7af9-4ab9-9f13-94db351e58fb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        240,
+        208
+      ],
+      "id": "fafdf697-ab99-4f20-ae03-37672d276180",
+      "name": "OpenRouter Chat Model AI",
+      "credentials": {
+        "openRouterApi": {
+          "id": "bEc51zfXH7K7zUIh",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.grozdan-space.com/webhook/ed81beee-b51f-4fa2-a8ca-2f51ea2e2fc3",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        528,
+        0
+      ],
+      "id": "99bbb341-0a32-47a3-bcf6-8c0358e68eaa",
+      "name": "Call \"Process execution token usage\""
+    },
+    {
+      "parameters": {
+        "tableName": "agent_memory",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "bf814e9f-41ce-408c-8fa4-af6f917a6dbe",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "1eeDQORJu4AeI6ZV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Script for Postgres DB \n\n-- Optional: generate UUIDs if you want UUID-based ids\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\n\nCREATE TABLE IF NOT EXISTS agent_memory (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    session_id VARCHAR(255) NOT NULL,\n    message JSONB NOT NULL\n);\n\n-- Optional index for faster lookup by session\nCREATE INDEX IF NOT EXISTS idx_agent_memory_session_id\n    ON agent_memory (session_id);\n\n-- Optional index for JSONB searches\nCREATE INDEX IF NOT EXISTS idx_agent_memory_message_gin\n    ON agent_memory\n    USING GIN (message);",
+        "height": 416,
+        "width": 544,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "10010970-976c-490b-a249-7428db5f061b",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Call \"Process execution token usage\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model AI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7598a639-d22e-44e8-8b09-aff3a0d50bb6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e85614f3aeb93eeac096e1e1f9006fa3dac7c9448c19d737f975f21b83121f56"
+  },
+  "id": "OpSlRTNITv5cyKA0",
+  "tags": []
+}
