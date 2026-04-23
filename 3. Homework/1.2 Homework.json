@@ -1,0 +1,584 @@
+{
+  "name": "[MAIN] Process execution token usage",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "={{ $json.query.executionId }}",
+        "options": {
+          "activeWorkflows": true
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -16
+      ],
+      "id": "127acb6a-0682-423b-86f7-9c8bd178ef1e",
+      "name": "Get an execution",
+      "credentials": {
+        "n8nApi": {
+          "id": "erwpiXs4FtYq1F6I",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "ed81beee-b51f-4fa2-a8ca-2f51ea2e2fc3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -144,
+        -16
+      ],
+      "id": "ae8a6788-1e58-4259-84a5-99f470a11ed5",
+      "name": "Webhook",
+      "webhookId": "ed81beee-b51f-4fa2-a8ca-2f51ea2e2fc3",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const price = {\n  inputPrice: $json.inputTokenPrice,\n  outputPrice: $json.outputTokenPrice\n};\n\nconst usage = {\n  promptTokens: $('Split Out').item.json.tokenUsage.promptTokens,\n  completionTokens: $('Split Out').item.json.tokenUsage.completionTokens\n};\n\nreturn {\n  model: $json.model,\n  totalCost: ((usage.promptTokens / 1_000_000) * price.inputPrice +\n             (usage.completionTokens / 1_000_000) * price.outputPrice)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        -16
+      ],
+      "id": "4d025e7f-03f7-4c15-a6bb-17586c7debbe",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"executionId\": {{ $json.id }},\n\"workflowName\": \"{{ $json.workflowData.name }}\",\n\"workflowId\":\"{{ $json.workflowId }}\",\n\"isActive\": {{ $json.workflowData.active }},\n\"startedAt\": \"{{ $json.startedAt }}\",\n\"stoppedAt\": \"{{ $json.stoppedAt }}\",\n\"finished\": {{ $json.finished }},\n\"status\": \"{{ $json.status }}\",\n\"result\":{{ \nObject.entries($json.data.resultData.runData)\n    .filter(([key]) => key.includes('AI-MODEL') || key.includes('AI'))\n    .map(([key, value]) => {\n      const usages = value\n        .map(v=> v.data?.ai_languageModel?.[0]?.[0]?.json?.tokenUsage)\n        .filter(Boolean);\n\n      const totalUsage = usages.reduce((acc, u) => {\n        acc.promptTokens += u.promptTokens || 0;\n        acc.completionTokens += u.completionTokens || 0;\n        acc.totalTokens += u.totalTokens || 0;\n        return acc;\n      }, { promptTokens: 0, completionTokens: 0, totalTokens: 0 });\n\n      return {\n        model: value[0]?.inputOverride?.ai_languageModel?.[0]?.[0]?.json?.options?.model || key,\n        calls: usages.length,\n        tokenUsage: totalUsage\n      };\n    })\n    .filter(r => r.tokenUsage.totalTokens > 0);\n}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -16
+      ],
+      "id": "7e33a766-b628-41d8-b035-88e7b3b76ed3",
+      "name": "Extract important data"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cmuGr5Y6c5emLavW1G7BSEDBo_57nG3BH7pFsHnBe4I",
+          "mode": "list",
+          "cachedResultName": "Token cost for models",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cmuGr5Y6c5emLavW1G7BSEDBo_57nG3BH7pFsHnBe4I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "prices",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cmuGr5Y6c5emLavW1G7BSEDBo_57nG3BH7pFsHnBe4I/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "model",
+              "lookupValue": "={{ $json.model }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        -16
+      ],
+      "id": "58717fe4-961e-4699-9c33-c2a8e78162bb",
+      "name": "Get cost for each model",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bPMhqfU9KE52cbkk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -16
+      ],
+      "id": "bd5f51ea-98f5-4701-bc35-14c25d804c96",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8",
+          "mode": "list",
+          "cachedResultName": "Total Cost per Model",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "cost",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "model": "={{ $('Code in JavaScript').item.json.model }}",
+            "total cost": "={{ $('Code in JavaScript').item.json.totalCost }}",
+            "inputTokens": "={{ $('Split Out').item.json.tokenUsage.promptTokens }}",
+            "outputTokens": "={{ $('Split Out').item.json.tokenUsage.completionTokens }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inputTokens",
+              "displayName": "inputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outputTokens",
+              "displayName": "outputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total cost",
+              "displayName": "total cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1984,
+        48
+      ],
+      "id": "6864dcbd-ba86-4401-8376-51bea54c8fe7",
+      "name": "Add new model cost record",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bPMhqfU9KE52cbkk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8",
+          "mode": "list",
+          "cachedResultName": "Total Cost per Model",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "cost",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "model": "={{ $('Code in JavaScript').item.json.model }}",
+            "inputTokens": "={{ $json.inputTokens + $('Split Out').item.json.tokenUsage.promptTokens}}",
+            "outputTokens": "={{ $json.outputTokens + $('Split Out').item.json.tokenUsage.completionTokens}}",
+            "total cost": "={{ $json[\"total cost\"] + $('Code in JavaScript').item.json.totalCost}}"
+          },
+          "matchingColumns": [
+            "model"
+          ],
+          "schema": [
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "inputTokens",
+              "displayName": "inputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "outputTokens",
+              "displayName": "outputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total cost",
+              "displayName": "total cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2224,
+        48
+      ],
+      "id": "2faafbfb-e73a-49fa-b1c5-0a3354cd3c6b",
+      "name": "Update model cost record",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bPMhqfU9KE52cbkk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Cost for each model\nmodel\t                  inputTokenPrice\t       outputTokenPrice\ngpt-4.1\t                  2.00\t                        8.00\ngpt-4o-mini\t          0.15\t                        0.60\ngpt-4.1-mini\t          0.40\t                        1.60\ngpt-5 mini\t          0.25\t                        2.00\ngpt-5.2\t                  1.75\t                        14.00\ngpt-5.4\t                  2.50\t                        15.00\ngpt-5.4 mini\t          0.75\t                         4.50\ngemini-2.5-flash\t  0.30\t                         2.50\ngemini-2.5-pro\t  2.50\t                         15.00",
+        "height": 464,
+        "width": 272,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -288
+      ],
+      "typeVersion": 1,
+      "id": "c7966767-0289-4601-bffc-04848b14ec01",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8",
+          "mode": "list",
+          "cachedResultName": "Total Cost per Model",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "cost",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1O9N6G7_zPNsusQyydegnqj64MxPKGWOWsboxLmFmBG8/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "model",
+              "lookupValue": "={{ $json.model }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1632,
+        -96
+      ],
+      "id": "bface5d9-ea66-4c45-a523-dcde5e4449c2",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bPMhqfU9KE52cbkk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1328,
+        -64
+      ],
+      "id": "1bfa5daf-5d27-426f-a29f-3f9be198b4af",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8e02f2a4-e8a4-4156-93d9-126bde1da620",
+              "leftValue": "={{$json}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        -80
+      ],
+      "id": "d1a257ad-2dfd-4968-80db-8c211c3853eb",
+      "name": "If model has cost record"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        -304
+      ],
+      "id": "c1ae8da8-0b94-40d4-8543-c618ed7d3400",
+      "name": "END FLOW"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get an execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an execution": {
+      "main": [
+        [
+          {
+            "node": "Extract important data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract important data": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get cost for each model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Get cost for each model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If model has cost record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "END FLOW",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If model has cost record": {
+      "main": [
+        [
+          {
+            "node": "Update model cost record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add new model cost record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add new model cost record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update model cost record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "dEF5IoeXdQK49wrm"
+  },
+  "versionId": "cf70ca2a-61cd-4e85-afec-1f1fdf0d8ec1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e85614f3aeb93eeac096e1e1f9006fa3dac7c9448c19d737f975f21b83121f56"
+  },
+  "id": "p5ujDcNUhpdhu3VC",
+  "tags": []
+}

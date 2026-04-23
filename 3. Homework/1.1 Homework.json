@@ -1,0 +1,422 @@
+{
+  "name": "1 Homework",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Token Counter\n\n1. Add n8n Form trigger that will accept user input (text) and LLM model\n(dropdown) - the models can be from Google Gemini and/or\nChatGPT\n2. If there are models from different providers - add logic to split them by\nthe provider\n3. Add Gemini and/or ChatGPT nodes with “Message a Model” operation\n4. Disable the “Simplify Output” toggle in order to get the raw data from\nthe model\n5. When the LLM model generates a response - get the tokens data from\nthe response\n6. Add logic in order to determine how much input and output\n(completion) tokens the model generates and calculate the cost of\nthem\n7. Save all data in a Google Sheet where you can see which is the model,\nhow much input, completion and total tokens have been generated\nand what is the cost of all of them.\n8. When you run the workflow each time with the same prompt for\ndifferent models you will have a comparison data for them based on\nprice and token usage",
+        "height": 480,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "85d210fc-a01a-441e-bade-b41c5209619e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "formTitle": "Token Counter",
+        "formDescription": "Workflow which builds an automated LLM comparison system in n8n that evaluates different AI models based on token usage and cost for the same prompt.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Text:",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "AI Model",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "GPT-4.1"
+                  },
+                  {
+                    "option": "GPT-4.1-mini"
+                  },
+                  {
+                    "option": "gemini-2.5-flash"
+                  },
+                  {
+                    "option": "gemini-2.5-pro"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -16,
+        -208
+      ],
+      "id": "9afc4bfa-84b1-4235-be2e-2b5cc1fe4947",
+      "name": "On form submission",
+      "webhookId": "c4fa0814-58ea-44f9-b2f9-1546ce0243e0"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4,
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1b14e1c4-f6ac-4386-a1c9-c0a394c3eaaf",
+                    "leftValue": "={{ $json['AI Model'] }}",
+                    "rightValue": "GPT-4.1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6d26b366-d11a-405e-8780-a754ebde42c8",
+                    "leftValue": "={{ $json['AI Model'] }}",
+                    "rightValue": "GPT-4.1-mini",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 3,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "36b2ad1a-a826-4dcb-beb2-fabb4f493e5c",
+                    "leftValue": "={{ $json['AI Model'] }}",
+                    "rightValue": "gemini-2.5-flash",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 4,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "77d23358-9e44-448f-948e-bc7f23ddad18",
+                    "leftValue": "={{ $json['AI Model'] }}",
+                    "rightValue": "gemini-2.5-pro",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "typeVersion": 1,
+      "position": [
+        208,
+        16
+      ],
+      "id": "b4dc8bcd-3c3e-4970-a4c2-fe8d42caf575",
+      "name": "Model Selector"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User message: {{ $json['Text:'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        -208
+      ],
+      "id": "f7a8ece7-262d-43be-ac3f-166ad7f6afd1",
+      "name": "AI model",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Success",
+        "completionMessage": "=Flow executed successfully!\nAI model answer:{{ $json.output }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        688,
+        -224
+      ],
+      "id": "0e8b5b31-4456-4da7-bcdc-81224af3b59c",
+      "name": "Form",
+      "webhookId": "1815114a-6514-4273-976d-a6d4d4b96666"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.grozdan-space.com/webhook/ed81beee-b51f-4fa2-a8ca-2f51ea2e2fc3",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        -224
+      ],
+      "id": "28afc587-48a2-4b3a-b418-c248a8930f27",
+      "name": "Call \"Process execution token usage\""
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "id": "9be79c1e-fea8-4d41-9b2f-e0d0e4a389b5",
+      "name": "AI-MODEL Gemini-2.5-flash",
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "openRouterApi": {
+          "id": "bEc51zfXH7K7zUIh",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        624,
+        208
+      ],
+      "id": "9f689c3b-e468-4934-b5bc-886072964129",
+      "name": "AI-MODEL Gemini 2.5 pro",
+      "credentials": {
+        "openRouterApi": {
+          "id": "bEc51zfXH7K7zUIh",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4.1",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        96,
+        224
+      ],
+      "id": "590b5e3d-6760-448b-8bbf-6a80b3e283e2",
+      "name": "AI-MODEL GPT 4.1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "bEc51zfXH7K7zUIh",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        272,
+        208
+      ],
+      "id": "78d14053-cf73-49a4-8fcb-7afc00e8a75a",
+      "name": "AI-MODEL GPT-4.1-mini",
+      "credentials": {
+        "openRouterApi": {
+          "id": "bEc51zfXH7K7zUIh",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI model": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "Call \"Process execution token usage\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI-MODEL Gemini-2.5-flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "AI-MODEL Gemini 2.5 pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "AI-MODEL GPT 4.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI-MODEL GPT-4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "94c9ec2f-29da-4999-8e92-429b98eedaa9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e85614f3aeb93eeac096e1e1f9006fa3dac7c9448c19d737f975f21b83121f56"
+  },
+  "id": "MmRbvUL4HmQFslQG",
+  "tags": []
+}
