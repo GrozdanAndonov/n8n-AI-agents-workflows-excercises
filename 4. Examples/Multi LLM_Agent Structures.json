@@ -1,0 +1,668 @@
+{
+  "name": "Multi LLM/Agent Structures",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        -208
+      ],
+      "id": "df608a12-5a10-4e08-9688-5ef31901ff5d",
+      "name": "When chat message received",
+      "webhookId": "0bba92bb-6e7e-4bd6-a66e-115e304d1dc4"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        16
+      ],
+      "id": "3203e888-fcb4-4b44-a7fc-7123518a3068",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Brand:{{ $json.output.brand }}\nModel:{{ $json.output.model }}\nCar Origin: {{ $json.output.origin }}\nLuxury category: {{ $json.output.luxury }}\nReliability rating: {{ $json.output.reliability }}",
+        "options": {
+          "systemMessage": "## Role\nYou area a professional car orchestrator agent\n\n## Task\nYour main task is to pass the prompt that you receive to the corresponding agents based on the instructions below\n\n## Tools\nAt your disposal you have two AI Agents as tools:\n- USA & UK agent that must process car brands from USA and UK\n- Asia and Europe agent that must process car brands from Asia and Europe\n\n## Instructions\n- If the car origin is from USA or UK - pass the user input to the USA & UK Agent\n- If the car origin is from Asia or Europe - pass the user input to the Asia and Europe Agent\n- All the agents will process the user input and revert with enriched information for the can brand and model that you must format as article and present to the user.\n\n## Output\nYour output must be final article ONLY!"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -208
+      ],
+      "id": "a4081b87-ac59-420a-a1e0-34197a038532",
+      "name": "The Orchestrator"
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent tool to enrich the car data for car brands from China exclusively.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "## Role\nYou are a professional car information retriever for Chinese brands\n\n## Task\nYour main task is to consume the input query and enrich the provided information with the Chinese car brand and model history and interesting facts."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        416
+      ],
+      "id": "2946a6fc-e998-4a16-a455-284e6d5fed68",
+      "name": "China Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent tool to enrich the car data for car brands from Russia exclusively.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "## Role\nYou are a professional car information retriever for Russian car brands\n\n## Task\nYour main task is to consume the input query and enrich the provided information with the Russian car brand and model history and interesting facts."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        416
+      ],
+      "id": "6d26aa45-1188-4c5a-9830-cb32f636ee8f",
+      "name": "Cheap Guy Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen-2.5-72b-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        624
+      ],
+      "id": "d0b25bf3-50ec-438a-a386-f136028d6112",
+      "name": "Qwen 2.5 Instruct",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        672,
+        624
+      ],
+      "id": "a0c27166-5037-4db7-b33d-2a82eff9aa41",
+      "name": "DeepSeek R1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e6723cb-fb1b-48a9-bd9c-04eaea75f221",
+                    "leftValue": "={{ $json.output.origin }}",
+                    "rightValue": "China",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  },
+                  {
+                    "id": "1b0cd842-68c2-4ef4-b6bc-6783fda1e857",
+                    "leftValue": "={{ $json.output.origin }}",
+                    "rightValue": "Japan",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  },
+                  {
+                    "id": "4f9b7c94-649d-45b4-b88e-2eb8af04f29b",
+                    "leftValue": "={{ $json.output.origin }}",
+                    "rightValue": "Korea",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "92f52d0f-ca3b-47b8-906b-eb3925a11ef3",
+                    "leftValue": "={{ $json.output.origin }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "typeVersion": 1,
+      "position": [
+        160,
+        16
+      ],
+      "id": "b21d3767-d67f-45ea-893f-503d27571309",
+      "name": "Model Selector"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "## Role\nYou are a professional car brand categorizer \n\n## Task\nYour main task is to consume the user query and determine the required categories based on the instructions below\n\n## Instructions\n- you will receive a user input that will include some query about car details and information about a car brand and/or model\n- you must consume the query and determine the following category about the car in question:\n-- what is the country of origin of the brand. For example: Germany, USA, China, Japan, Korea etc.\n-- what is the level of luxury that the brand offers: basic, medium, high\n-- what is the reliability rating: low, medium, high\n\n## JSON Output\nYour output must be a JSON object based on the provided JSON example.\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -192,
+        -208
+      ],
+      "id": "44b07c57-a5bf-4f13-8477-0be4f49e9a62",
+      "name": "Brand origin categoriser"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        16
+      ],
+      "id": "b8d936c6-aab0-4ee3-bf7b-01e14cb2650a",
+      "name": "gemini-2.5-flash",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"brand\": \"BMW\",\n    \"model\": \"X5\",\n\t\"origin\": \"European\",\n\t\"luxury\": \"high\",\n    \"reliability\": \"low\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        16
+      ],
+      "id": "d3881d84-b693-461c-a1f5-7346ff9ebff9",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        128,
+        224
+      ],
+      "id": "8a8eb683-e0fa-4580-ac99-c65215b052ee",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent tool to enrich the car data for car brands from Asia and Europe.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "## Role\nYou are a professional car information retriever\n\n## Task\nYour main task is to consume the input query and enrich the provided information with the car brand and model history and interesting facts.\n\n## Instructions\n- If the car brand is Russian - you must use the Cheap Guy Agent to retrieve and enrich the information. \n- If the car brand is Chinese - you must use the China Agent to retrieve and enrich the information. \n- For all other brands SerpAPI tool to retrieve and enrich the information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        16
+      ],
+      "id": "ba0b47dd-b390-44d0-8065-f2abf56a1cc9",
+      "name": "Asia and Europe"
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent tool to enrich the car data for car brands from USA and UK.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "## Role\nYou are a professional car information retriever\n\n## Task\nYour main task is to consume the input query and enrich the provided information with the car brand and model history and interesting facts.\n\n## Instructions\n- Use the SerpAPI tool to obtain information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        -64
+      ],
+      "id": "0b80734f-9489-42ff-a6b3-668182eee9ff",
+      "name": "USA & UK"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        288,
+        224
+      ],
+      "id": "b84fd901-bfb6-4a09-8f2f-e63d6cd66238",
+      "name": "gpt-5",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        832,
+        240
+      ],
+      "id": "b4e9f0f5-5dde-4729-bd64-045d68e30530",
+      "name": "gemini-2.5-pro1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        144
+      ],
+      "id": "e39a39e6-082c-4c24-816e-94cb281b25ae",
+      "name": "gemini-2.5-pro2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        160
+      ],
+      "id": "9f23fb07-7039-4d7d-bfb5-8dd924bfd5f8",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "zCMvg9d1TpZVlyWF",
+          "name": "Dimitar SerpAPI Key EAI Academy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        144
+      ],
+      "id": "f436e1f5-8d71-406e-94eb-2dc8cdc53f7c",
+      "name": "SerpAPI1",
+      "credentials": {
+        "serpApi": {
+          "id": "zCMvg9d1TpZVlyWF",
+          "name": "Dimitar SerpAPI Key EAI Academy"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        624
+      ],
+      "id": "cb9d0a9f-26c4-407e-9e86-734e456feec5",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        816,
+        624
+      ],
+      "id": "39bae6e8-0454-41d4-8aeb-744d4e5eb59a",
+      "name": "Wikipedia1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Brand origin categoriser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "The Orchestrator",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "China Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Asia and Europe",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cheap Guy Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Asia and Europe",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen 2.5 Instruct": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cheap Guy Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek R1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "China Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "The Orchestrator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brand origin categoriser": {
+      "main": [
+        [
+          {
+            "node": "The Orchestrator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Brand origin categoriser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Brand origin categoriser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asia and Europe": {
+      "ai_tool": [
+        [
+          {
+            "node": "The Orchestrator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "USA & UK": {
+      "ai_tool": [
+        [
+          {
+            "node": "The Orchestrator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Asia and Europe",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "USA & UK",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Asia and Europe",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI1": {
+      "ai_tool": [
+        [
+          {
+            "node": "USA & UK",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cheap Guy Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia1": {
+      "ai_tool": [
+        [
+          {
+            "node": "China Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "25c7c5af-6054-4fcd-bf1b-2dee784fe529",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b77dabf6320328894a0cb180953e29d5c24a5a1a7c0ad6830175b3d197fddb73"
+  },
+  "id": "RHlWlGWinwZryJcE",
+  "tags": []
+}

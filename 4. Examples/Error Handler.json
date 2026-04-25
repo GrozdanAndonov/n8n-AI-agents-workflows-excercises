@@ -1,0 +1,246 @@
+{
+  "name": "Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "30a8215d-01d3-4c93-ac3e-ab623340d8b5",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "url": "=https://n8n.encorp.io/api/v1/executions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTFkNjcyZS0wMjc4LTQwYWQtYmMwMC1hOWMwYjZhMzg2ZDEiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYwNDIzNzA5fQ.f_xqvRMAGKe3l8tWGIBpsoB-xxw8Ihuu13clDmJ-l9M"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        496
+      ],
+      "id": "0d99e873-fbcc-468d-8ba0-ddf675e28ce5",
+      "name": "Get All Executions"
+    },
+    {
+      "parameters": {
+        "url": "=https://n8n.encorp.io/api/v1/executions/{{ $json.execution.id }}?includeData=true",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTFkNjcyZS0wMjc4LTQwYWQtYmMwMC1hOWMwYjZhMzg2ZDEiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYwNDIzNzA5fQ.f_xqvRMAGKe3l8tWGIBpsoB-xxw8Ihuu13clDmJ-l9M"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        304,
+        496
+      ],
+      "id": "60bbfb1e-de71-4a16-9438-cacd9a5e257b",
+      "name": "Get error execution with data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.encorp.io/webhook/5f41877f-3503-4e59-8fd1-a7e2b95a9c43",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data.resultData.runData.Webhook[0].data.main[0][0].json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3ec373c4-8eb2-4626-93f0-e13bc1e77857",
+      "name": "POST request to the webhook"
+    },
+    {
+      "parameters": {
+        "resource": "execution",
+        "limit": 20,
+        "filters": {},
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        64,
+        256
+      ],
+      "id": "42c1f228-8a63-4f0c-8815-d5f969177297",
+      "name": "Get all executions",
+      "credentials": {
+        "n8nApi": {
+          "id": "9w35fwiqvMbg26xD",
+          "name": "Dimitar API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "195044",
+        "options": {
+          "activeWorkflows": true
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        304,
+        256
+      ],
+      "id": "5c628370-457a-4d2a-851c-c68ddb6c1453",
+      "name": "Get a single execution",
+      "credentials": {
+        "n8nApi": {
+          "id": "9w35fwiqvMbg26xD",
+          "name": "Dimitar API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "={{ $json.execution.id }}",
+        "options": {
+          "activeWorkflows": true
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "4b80e99d-78a1-4e24-b1f3-e00692eb3aca",
+      "name": "Get a single execution1",
+      "credentials": {
+        "n8nApi": {
+          "id": "9w35fwiqvMbg26xD",
+          "name": "Dimitar API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Error recovery method",
+        "height": 240,
+        "width": 656,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "616a6b32-9835-4e3c-a479-d66c8925a0b2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get n8n executions\n",
+        "height": 208,
+        "width": 656
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "071f17bc-3710-4e4b-8ce3-e3ce5c005ab2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Get executions with HTTP\n",
+        "height": 224,
+        "width": 656,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "bc4e96cf-9931-40c2-9bb0-7967d774ce08",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a single execution1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Executions": {
+      "main": [
+        []
+      ]
+    },
+    "POST request to the webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Get a single execution1": {
+      "main": [
+        [
+          {
+            "node": "POST request to the webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9be82b1b-a74e-4ccf-8306-88d1b169f311",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b77dabf6320328894a0cb180953e29d5c24a5a1a7c0ad6830175b3d197fddb73"
+  },
+  "id": "XDBHr5d6YsUjnm0Q",
+  "tags": []
+}

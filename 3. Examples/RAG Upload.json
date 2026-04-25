@@ -1,0 +1,453 @@
+{
+  "name": "Dimitar RAG",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        128
+      ],
+      "id": "db4315aa-1876-4170-bee4-36c3e0e59095",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bvMVnc2qlWLiGoim",
+          "name": "Dimitar Gemini API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "=Name: {{ $json.name }}\nAge:{{ $json.age }}\nGender: {{ $json.gender }}\nDepartment: {{ $json.department }}\nSalary: {{ $json.salary }}\nLeave days:{{ $json.leave_days }}\nParking_spot:{{ $json.parking_spot }}\nEmail:{{ $json.email }}\nStart_date: {{ $json.start_date }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "age",
+                "value": "={{ $json.age }}"
+              },
+              {
+                "name": "start_date",
+                "value": "={{ $json.start_date }}"
+              },
+              {
+                "name": "leave_days",
+                "value": "={{ $json.leave_days }}"
+              },
+              {
+                "name": "salary",
+                "value": "={{ $json.salary }}"
+              },
+              {
+                "name": "gender",
+                "value": "={{ $json.gender }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        208,
+        128
+      ],
+      "id": "b6d551ad-fdc5-45d3-9c7f-6e4255344f19",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -96
+      ],
+      "id": "079e96bb-32df-48b8-9da0-79fbdb738b3e",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1dWjmBzXa5VyJdjweFfW1dHn1jjopJ-ALGwgPGCBRy2k",
+          "mode": "list",
+          "cachedResultName": "EAIA RAG Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dWjmBzXa5VyJdjweFfW1dHn1jjopJ-ALGwgPGCBRy2k/edit?usp=drivesdk"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -368,
+        -96
+      ],
+      "id": "07bc9d0e-a883-4b40-b9a5-fdb4650bce2f",
+      "name": "Downloading the sheet",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "R2JJzLARJgZmsfIS",
+          "name": "Dimitar HL-TopMix OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -96
+      ],
+      "id": "72d94bfc-5510-4aa1-b240-efdef38539d3",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemPromptTemplate": "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.\nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n\n----------------\nContext: {context}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.6,
+      "position": [
+        176,
+        672
+      ],
+      "id": "0c157bd8-2e32-4e76-965f-e6dc6ffb2e96",
+      "name": "Question and Answer Chain"
+    },
+    {
+      "parameters": {
+        "topK": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        272,
+        896
+      ],
+      "id": "83f88c53-85db-43b9-9e02-dac3f5a9e72f",
+      "name": "Vector Store Retriever"
+    },
+    {
+      "parameters": {
+        "tableName": "ai_agent_vector_store",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        1104
+      ],
+      "id": "054ef164-c2e0-46a2-be19-3dafeedfecd7",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        1312
+      ],
+      "id": "5bd81715-59b7-43a1-a832-cb17dbe0f439",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bvMVnc2qlWLiGoim",
+          "name": "Dimitar Gemini API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        144,
+        896
+      ],
+      "id": "d067b16b-51e3-4dda-b229-a06ca0580b7f",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        736
+      ],
+      "id": "e967d5dc-8dae-4f3b-b80b-2c24d72dc8cd",
+      "name": "When chat message received",
+      "webhookId": "2b9ff096-95b2-4974-bb1c-d49b1dddf2b5"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "ai_agent_vector_store",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        -96
+      ],
+      "id": "24ff84e5-6dad-45e5-a60e-0b39686163a1",
+      "name": "Postgres PGVector Store1",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "tableName": "ai_agent_vector_store",
+        "prompt": "={{ $json.chatInput }}",
+        "options": {
+          "distanceStrategy": "cosine"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        1008
+      ],
+      "id": "e6597aff-9530-4c7e-b29e-0d14b6dcbc27",
+      "name": "Postgres PGVector Store2",
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        1216
+      ],
+      "id": "f561446b-22ff-40f2-9d78-189edea585a9",
+      "name": "Embeddings Google Gemini2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bvMVnc2qlWLiGoim",
+          "name": "Dimitar Gemini API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## RAG Upload ",
+        "height": 672,
+        "width": 1200,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -672,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "73c3dd7e-d217-4b4a-907d-a8870b7eccd2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        304,
+        336
+      ],
+      "id": "73495ea2-7bef-47cc-8f92-52f14d658bda",
+      "name": "Token Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downloading the sheet": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Downloading the sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Postgres PGVector Store1": {
+      "main": [
+        []
+      ]
+    },
+    "Embeddings Google Gemini2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e9a7ec45-9556-4a85-99df-a8d74e12b4e5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b77dabf6320328894a0cb180953e29d5c24a5a1a7c0ad6830175b3d197fddb73"
+  },
+  "id": "N1FVu0l5Ynf4VtQF",
+  "tags": []
+}

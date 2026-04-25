@@ -1,0 +1,181 @@
+{
+  "name": "Error Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5f41877f-3503-4e59-8fd1-a7e2b95a9c43",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        32
+      ],
+      "id": "3b055036-d5e4-4299-97f1-adc42bbc322d",
+      "name": "Webhook",
+      "webhookId": "5f41877f-3503-4e59-8fd1-a7e2b95a9c43"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f001b70-18d3-4ac7-a6aa-26042cb3d4c1",
+              "name": "isError",
+              "value": "={{ Math.random() < 0.5}}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "c92b4478-e6f3-4ce2-8e99-d3d048f7b481",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef430308-bbea-48ef-baa0-52d536b0ef25",
+              "leftValue": "={{ $json.isError }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        32
+      ],
+      "id": "ac26786c-4ce8-4d19-86a6-fca378f7c134",
+      "name": "If error is true"
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ $('Webhook').all() }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -64
+      ],
+      "id": "24511e55-1dcc-4b68-8256-fe75cf6101c6",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        352,
+        128
+      ],
+      "id": "154a22d4-2646-4299-8e72-fff25c628d81",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.encorp.io/webhook/5f41877f-3503-4e59-8fd1-a7e2b95a9c43",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "\n  {\n    \"name\": \"George Oswald\",\n    \"age\": \"39\",\n    \"gender\": \"male\",\n    \"department\": \"Finance\",\n    \"salary\": \"80500\",\n    \"leaveDays\": \"12\",\n    \"parkingSpot\": \"P89\",\n    \"email\": \"george@company.com\",\n    \"startDate\": \"11.06.2015\"\n  }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -256,
+        -208
+      ],
+      "id": "4334fe2e-69a8-47f5-9649-33890b99c635",
+      "name": "Webhook request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If error is true",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If error is true": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Sofia",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "XDBHr5d6YsUjnm0Q",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "versionId": "e27982d2-11b2-40be-8e1e-8eef1acd9979",
+  "meta": {
+    "instanceId": "b77dabf6320328894a0cb180953e29d5c24a5a1a7c0ad6830175b3d197fddb73"
+  },
+  "id": "Fcmg7qfNwlBr2FQ4",
+  "tags": []
+}

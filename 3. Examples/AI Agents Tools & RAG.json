@@ -1,0 +1,463 @@
+{
+  "name": "Dimitar AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "allowFileUploads": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "019be9b4-c942-48be-8355-527ca9f04457",
+      "name": "When chat message received",
+      "webhookId": "12bc94da-a3f9-4807-b670-85b7d25db3fa"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=## Role \nYou are **Nova**, an adventurous and witty intergalactic AI explorer.  \nYou travel through galaxies of data — from Wikipedia to Star Wars — to uncover fascinating facts, legendary characters, and curious knowledge.  \nYou combine humor, storytelling, and real information in your answers.\n\n## Task\nEngage users in fun, educational conversations about science, pop culture, and especially **Star Wars**.  \nWhen users ask questions, use your connected tools to find accurate and interesting information, then present it in a creative and entertaining way.\n\n### Tools\n- **Wikipedia API** → for general knowledge and trivia  \n- **Star Wars API (SWAPI)** → for details about characters, planets, and films  \n- **SERP API / HTTP tool** → for searching the wider galaxy (the internet) when more data is needed  \n\nYou never invent factual data if a tool can provide it.  \nWhen tools are unavailable, clearly state that you’re using your “galactic memory” instead.\n\n### Instructions\n1. Begin each response with a short, enthusiastic greeting or dramatic intro.  \n   - Example: “🚀 Buckle up, traveler! We’re jumping to hyperspace!”  \n2. Retrieve factual data using the most relevant tool available.  \n3. Present information in a structured and engaging way, using headings or emojis:  \n   - `⚙️ Info:` factual explanation  \n   - `🎭 Fun Fact:` entertaining insight or joke  \n   - `📚 Source:` where the data came from  \n4. Keep answers between **2–4 short sentences**.  \n5. Maintain a tone that’s **friendly, imaginative, and energetic** — like a mix of a Star Wars guide and a museum storyteller.  \n6. Always end with a short signature line, e.g.  \n   - “Nova out 🚀”  \n   - “May the facts be with you ✨”  \n\n## JSON Output\nFor your answer output only the following JSON object\n{\n\"answer\": \"your generated answer\",\n\"tools\": \"hwhich tools have you used for your answer\",\n\"reason\": \"The logic you have used to generate your answer\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        0
+      ],
+      "id": "d323c0b0-a9da-4aca-b4ea-4af010a762ad",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        208
+      ],
+      "id": "cd785107-80b8-4413-a06f-08782ba54102",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "ai_agent_memory",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        384
+      ],
+      "id": "9a1dc894-fae3-4fc4-af68-3ed28c60a056",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        144,
+        224
+      ],
+      "id": "80c5d8e5-12a1-4f55-a20b-edf07ebb2f54",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "764ffed9-87af-4ac3-a707-bec3f37c8d22",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "toolDescription": "HTTP tool for obtaining information about Star wars movies",
+        "url": "https://swapi.dev/api/films",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        224
+      ],
+      "id": "0dfdd7f6-0d1b-47a2-b1c0-a7977d1b5fee",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## Role\nYou are a company data extractor AI Agent\n\n## Task\nYour main task is to extract data from the company RAG vector store and output it to the user.\n\n## Tools\n- You are provided with Postgres PGVector tool to access and obtain information based on the user input.\n\n## Instructions\n- on every user input access the vector store information and return a relevant answer\n\n## Steps\n- consume the user input\n- access the vector store tool to obtain information\n- generate a relevant reply\n- return the answer to the user\n\n## Output\nYou must output only the answer to the user ",
+          "batching": {
+            "batchSize": 1,
+            "delayBetweenBatches": 3
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        800
+      ],
+      "id": "91551ab9-3abf-4327-bfec-edc0ac7cb533",
+      "name": "AI Agent1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        32,
+        1024
+      ],
+      "id": "9a73e7b0-fa9d-4c21-90da-d439875b5ad6",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "ai_agent_memory",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        1024
+      ],
+      "id": "0c0f4cb6-46a3-45ab-9877-89cf68743fd6",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Company employees data",
+        "tableName": "ai_agent_vector_store",
+        "topK": 10,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        1056
+      ],
+      "id": "09583469-9a38-48c4-948b-711b7f78333d",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "bVsywT7UbJq9jWMJ",
+          "name": "Dimtar EAI Academy Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        432,
+        1264
+      ],
+      "id": "5a3ac67a-b947-42d1-9f3d-f99e14431178",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bvMVnc2qlWLiGoim",
+          "name": "Dimitar Gemini API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        560,
+        224
+      ],
+      "id": "76d5a70e-387f-45d5-a03c-dfbc4e86130b",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "zCMvg9d1TpZVlyWF",
+          "name": "Dimitar SerpAPI Key EAI Academy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"answer\": \"your generated answer\",\n\"tools\": \"which tools have you used for your answer\",\n\"reason\": \"The logic you have used to generate your answer\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        128
+      ],
+      "id": "d632ea46-9830-4c12-8f48-7112434722f1",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        672,
+        336
+      ],
+      "id": "104a5615-b6b3-4f56-a308-96d2e659fca6",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "OCdkrqFq704EY8wd",
+          "name": "Dimitar Encorp AI Academy API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent with RAG\n",
+        "height": 672,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        720
+      ],
+      "typeVersion": 1,
+      "id": "5040884c-ce00-4372-9401-393ef7924fd4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent with tools\n",
+        "height": 656,
+        "width": 1280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "32db6516-2fe7-4f95-bbb5-b1042e012d5a",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "N1FVu0l5Ynf4VtQF",
+    "timezone": "Europe/Sofia"
+  },
+  "versionId": "cd03ce5c-88df-43e1-b3da-21ef837bdce7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b77dabf6320328894a0cb180953e29d5c24a5a1a7c0ad6830175b3d197fddb73"
+  },
+  "id": "vWoF4PoNTJu4EKTM",
+  "tags": []
+}
