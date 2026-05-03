@@ -1,0 +1,911 @@
+{
+  "name": "5.1 Personal RAG Upload Files",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        -880
+      ],
+      "id": "9771ae4a-7840-40e4-8c86-8f9d2fae4bff",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.dirId }}' in parents and trashed = false",
+        "returnAll": true,
+        "filter": {},
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -928,
+        -880
+      ],
+      "id": "deefdf7d-40bc-4640-9eb4-bafc5b1fee91",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1cWO6iQn6tPbDurQ",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "folder",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "0ae7cf86-9c54-4dda-bc69-158c4a8f5b1d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Folder"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1e0a7df9-a7e0-4dbc-9b1b-4d63ffa3d14d",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "folder",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "File"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        -880
+      ],
+      "id": "85934038-183c-42f6-8ae1-26328f70b3c2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2536965d-752c-45a1-bdb2-17f61f4d3e39",
+              "name": "dirId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -1104
+      ],
+      "id": "cf1a8f14-9565-4afb-9755-99f00d3491a0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -480,
+        -864
+      ],
+      "id": "e1c654f0-edfe-4087-99aa-4dd4078b0632",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1cWO6iQn6tPbDurQ",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "n8n_vectors_health_docs",
+        "options": {
+          "collection": {
+            "values": {
+              "useCollection": true,
+              "collectionName": "n8n-health-docs",
+              "collectionTableName": "n8n_vector_collections_health_docs"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        -848
+      ],
+      "id": "9ebc1be4-13f1-43ba-aa34-e0d08be2c523",
+      "name": "Postgres PGVector Store",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "jbT0ZAahDBqvS5zG",
+          "name": "Postgres RAG_DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {
+          "joinPages": true,
+          "keepSource": "json"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        -1184
+      ],
+      "id": "ff4287d6-d8f6-4c8e-9901-82fc45b6a0a3",
+      "name": "Extract from PDF"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        -1024
+      ],
+      "id": "5a50f922-8c3e-490e-b23d-ac0010dc50e8",
+      "name": "Extract from CSV"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        -864
+      ],
+      "id": "7b649d57-e353-42c2-85a5-2364aaada23a",
+      "name": "Extract from Txt"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        -688
+      ],
+      "id": "f08728dd-b2fd-43ce-ae44-7eefae7ad3cf",
+      "name": "Extract from Modern Excel"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        -512
+      ],
+      "id": "22f99223-90d7-4511-8b4b-27cf68527865",
+      "name": "Extract from Old Excel"
+    },
+    {
+      "parameters": {
+        "content": "## Download recursively files from pointed dir in google drive\n",
+        "height": 896,
+        "width": 992,
+        "color": "#0E2A4E"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -1248
+      ],
+      "typeVersion": 1,
+      "id": "0e243a83-346f-4a4e-a1d8-b3b12592f82b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Extract data from files depending of the formats\n",
+        "height": 896,
+        "width": 1280,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        -1248
+      ],
+      "typeVersion": 1,
+      "id": "6eddb724-2189-42a4-92bd-3bc7d7b7b93a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Upload into the RAG DB",
+        "height": 896,
+        "width": 944,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -1248
+      ],
+      "typeVersion": 1,
+      "id": "ba7cc10e-7749-4048-9507-c5e20f20a958",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1536
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        -656
+      ],
+      "id": "badbf535-9207-4bc1-b70b-88372ab4bf18",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "VrKKKzPqqcqUVD34",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mimeType.split('/')[1] }}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "82a2cb27-cb97-41f8-bf7f-5217da5c4374"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e54a6945-0f58-46a4-8ade-fde6740c007e",
+                    "leftValue": "={{ $json.mimeType.split('/')[1] }}",
+                    "rightValue": "csv",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CSV"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b47b49a6-e57a-41d4-a6ad-83a2461ab93f",
+                    "leftValue": "={{ $json.mimeType.split('/')[1] }}",
+                    "rightValue": "txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1ffc383e-3a8a-4599-ad0f-e53c7dba06e9",
+                    "leftValue": "={{ $json.mimeType.split('/')[1] }}",
+                    "rightValue": "xlsx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Modern Excel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "03d1444a-d19b-462d-b2a3-488413a3a4d7",
+                    "leftValue": "={{ $json.mimeType.split('/')[1] }}",
+                    "rightValue": "xls",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Old Excel"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        -912
+      ],
+      "id": "d34c02b2-5e2f-433b-ba24-6cfc74052def",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "content": "## Script for creating tables for RAG DB \nCREATE EXTENSION IF NOT EXISTS vector;\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\n\nCREATE TABLE IF NOT EXISTS n8n_vector_collections_health_docs (\n    uuid uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n    name text NOT NULL,\n    cmetadata jsonb\n);\n\nCREATE TABLE IF NOT EXISTS n8n_vectors_health_docs (\n    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n    content text,\n    metadata jsonb,\n    embedding vector(1536),\n    collection_id uuid REFERENCES n8n_vector_collections_health_docs(uuid)\n);",
+        "height": 368,
+        "width": 544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        -1280
+      ],
+      "typeVersion": 1,
+      "id": "9ac72926-c35e-477d-a1b7-d2ba3287bd4b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.grozdan-space.com/webhook/ed81beee-b51f-4fa2-a8ca-2f51ea2e2fc3",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2096,
+        -848
+      ],
+      "id": "111bbbdf-19dd-483f-b505-b89369b69ce2",
+      "name": "Call \"Process execution token usage\""
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.pageContent }}",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        -656
+      ],
+      "id": "fe0e7d77-2862-4d9c-9d6c-1078b8392a4a",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        -848
+      ],
+      "id": "66162c46-86e2-4611-b6d1-60b1432bef68",
+      "name": "Aggregate",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a strict JSON extraction engine.\n\nExtract structured data from the following text and return ONLY one valid JSON object.\n\nRules:\n- Return raw JSON only.\n- Do NOT wrap the response in ```json.\n- Do NOT add explanations, comments, markdown, or extra text.\n- Use double quotes for all JSON keys and string values.\n- Use null when a value is missing.\n- Dates must be ISO format: YYYY-MM-DD.\n- Date-times must be: YYYY-MM-DD HH:mm.\n- Numbers must be JSON numbers, not strings, unless the value contains symbols like \"<8.0\".\n- Preserve medical/test names exactly as written.\n- Do not invent values that are not present in the text.\n- The output must be parseable directly with JSON.parse().\n\nThe json format must be:\nExample:\n{\n  \"patient\": dataForPatien,\n  \"tests\": testResults\n}\n\n text:\n{{$json.text}}"
+            }
+          ]
+        },
+        "simplify": "={{ $json.text }}",
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          },
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        -848
+      ],
+      "id": "c2043518-f326-4f39-ac52-1768fe0990b9",
+      "name": "Message a model",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "VrKKKzPqqcqUVD34",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c99ed79-9120-4fdc-ab2b-09a10b2e91fd",
+              "name": "patient",
+              "value": "={{ $json.output[0].content[0].text.patient }}",
+              "type": "object"
+            },
+            {
+              "id": "10cec011-7427-4d1a-85c9-9edb5a0a061b",
+              "name": "tests",
+              "value": "={{ $json.output[0].content[0].text.tests }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -848
+      ],
+      "id": "daee4139-ea76-4db2-a4fb-46d4ab307f05",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "function printNested(value, indent = '') {\n\tlet output = '';\n\n\tif (Array.isArray(value)) {\n\t\tvalue.forEach((item, index) => {\n\t\t\toutput += `${indent}[${index + 1}] `;\n\n\t\t\tif (typeof item === 'object' && item !== null) {\n\t\t\t\toutput += printNested(item, indent + '   ');\n\t\t\t} else {\n\t\t\t\toutput += `${indent}${item} `;\n\t\t\t}\n\t\t});\n\t} else if (typeof value === 'object' && value !== null) {\n\t\tObject.entries(value).forEach(([key, val]) => {\n\t\t\tif (typeof val === 'object' && val !== null) {\n\t\t\t\toutput += `${indent}${key}: `;\n\t\t\t\toutput += printNested(val, indent + '   ');\n\t\t\t} else {\n\t\t\t\toutput += `${indent}${key}: ${val} `;\n\t\t\t}\n\t\t});\n\t} else {\n\t\toutput += `${indent}${value} `;\n\t}\n\n\treturn output;\n}\n\nreturn items.map(item => {\n\tconst data = item.json;\n\tlet finalOutput = '';\n\n\tfinalOutput += `Patient: `;\n\tfinalOutput += printNested(data.patient, '   ');\n\tfinalOutput += ` `;\n\n\tdata.tests.forEach(test => {\n\t\tfinalOutput += `Test Name: ${test.test_name || 'Unknown'} `;\n\t\tfinalOutput += `======================== `;\n\n\t\tObject.entries(test).forEach(([key, value]) => {\n\t\t\tif (key === 'test_name') return;\n\n\t\t\tif (typeof value === 'object' && value !== null) {\n\t\t\t\tfinalOutput += `${key}: `;\n\t\t\t\tfinalOutput += printNested(value, '   ');\n\t\t\t} else {\n\t\t\t\tfinalOutput += `${key}: ${value} `;\n\t\t\t}\n\n\t\t\tfinalOutput += `--- `;\n\t\t});\n\n\t\tfinalOutput += ` `;\n\t});\n\n\treturn {\n\t\tjson: {\n\t\t\tpageContent: finalOutput,\n\t\t\tmetadata: {\n\t\t\t\tsource: 'lab_result',\n\t\t\t\tpatient_name: data.patient?.name || null,\n\t\t\t\ttest_count: data.tests?.length || 0\n\t\t\t}\n\t\t}\n\t};\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -848
+      ],
+      "id": "cef5fa47-db6f-422b-a40d-36e3c337b509",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chunkSize": 100000
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        -496
+      ],
+      "id": "9fee9853-d476-452c-983c-1cb8d63447bc",
+      "name": "Token Splitter"
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "dirId": "16hWV8b1KzggRwSoO039HGH3ph9dXSS17"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from CSV": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Txt": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Modern Excel": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Old Excel": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Txt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Modern Excel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Old Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Call \"Process execution token usage\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "dEF5IoeXdQK49wrm",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "eac7b745-773d-44da-8b08-6909fc8cdf5f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e85614f3aeb93eeac096e1e1f9006fa3dac7c9448c19d737f975f21b83121f56"
+  },
+  "id": "WDnXH3UgtXsWEfHs",
+  "tags": []
+}
